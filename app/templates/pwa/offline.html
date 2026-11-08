@@ -1,0 +1,22 @@
+{# Standalone on purpose: this page is cached, so it must not contain anything personal (login state). #}
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex">
+  <title>{{ t("offline.title") }} – {{ site_name }}</title>
+  <meta name="theme-color" content="#0d0c0b">
+  <script src="{{ asset('js/theme-init.js') }}"></script>
+  <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+</head>
+<body class="flex min-h-dvh items-center justify-center p-6">
+  <main class="max-w-sm text-center">
+    <img src="{{ asset('img/icon-192.png') }}" alt="" width="72" height="72" class="mx-auto rounded-2xl">
+    <h1 class="mt-5 text-2xl font-extrabold tracking-tight">{{ t("offline.title") }}</h1>
+    <p class="mt-2 text-stone-600 dark:text-stone-400">{{ t("offline.text") }}</p>
+    <p class="mt-2 text-sm text-stone-600 dark:text-stone-400">{{ t("offline.hint") }}</p>
+    <a href="/" class="btn-primary mt-6">{{ t("offline.retry") }}</a>
+  </main>
+</body>
+</html>

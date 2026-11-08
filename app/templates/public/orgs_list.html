@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% from "macros/icons.html" import icon %}
+{% from "macros/ui.html" import org_card, pagination with context %}
+
+{% block title %}{{ t("orgs.title") }} in Amberg – {{ site_name }}{% endblock %}
+
+{% block content %}
+<div class="container-page py-8">
+  <h1 class="text-2xl font-extrabold tracking-tight sm:text-3xl">{{ t("orgs.title") }}</h1>
+  <p class="mt-1 text-stone-600 dark:text-stone-400">{{ t("orgs.intro") }}</p>
+
+  <form method="get" class="mt-5 space-y-3" role="search">
+    {% if typ %}<input type="hidden" name="typ" value="{{ typ }}">{% endif %}
+    <div class="flex gap-2">
+      <label for="o-q" class="sr-only">{{ t("nav.search") }}</label>
+      <input id="o-q" name="q" type="search" value="{{ q }}" class="input" placeholder="{{ t('orgs.search_placeholder') }}">
+      <button class="btn-primary shrink-0" type="submit">{{ icon("search", "size-4") }}<span class="sr-only sm:not-sr-only">{{ t("nav.search") }}</span></button>
+    </div>
+  </form>
+  <div class="scroll-row mt-3">
+    {% for value, label in [("", t("orgs.all")), ("geschaefte", t("orgs.businesses")), ("vereine", t("orgs.clubs"))] %}
+      <a class="chip {% if typ == value %}chip-active{% endif %}" {% if typ == value %}aria-current="page"{% endif %}
+         href="{{ url_for('public.organizations', typ=value or None, q=q or None) }}">{{ label }}</a>
+    {% endfor %}
+  </div>
+
+  {% if page.items %}
+    <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {% for org in page.items %}{{ org_card(org) }}{% endfor %}
+    </div>
+    {{ pagination(page) }}
+  {% else %}
+    <p class="mt-8 rounded-2xl border border-dashed border-stone-300 p-8 text-center text-stone-600 dark:border-stone-700 dark:text-stone-400">{{ t("orgs.no_results") }}</p>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,31 @@
+# /etc/systemd/system/amberg-live.service
+[Unit]
+Description=Amberg Live (gunicorn)
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=notify
+User=amberg
+Group=amberg
+WorkingDirectory=/srv/amberg-live
+EnvironmentFile=/srv/amberg-live/.env
+ExecStart=/srv/amberg-live/.venv/bin/gunicorn -c deploy/gunicorn.conf.py wsgi:app
+ExecReload=/bin/kill -s HUP $MAINPID
+Restart=on-failure
+RestartSec=5
+
+# Hardening: the app may only write to its instance folder (database file, uploads, logs).
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/srv/amberg-live/instance
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+
+[Install]
+WantedBy=multi-user.target

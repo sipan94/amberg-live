@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% from "macros/icons.html" import icon %}
+{% from "macros/ui.html" import validity with context %}
+
+{% block title %}{{ offer.title }} – {{ offer.organization.name }} – {{ site_name }}{% endblock %}
+{% block meta_description %}{{ offer.description|plain(155) }}{% endblock %}
+{% block og_image %}{{ site_url }}{{ upload_url(offer.image) if offer.image else asset('img/og-default.png') }}{% endblock %}
+
+{% block content %}
+<article class="container-page max-w-3xl py-6">
+  <a href="{{ url_for('public.offers') }}" class="link mb-4 inline-flex items-center gap-1 text-sm">{{ icon("arrow-left", "size-4") }} {{ t("offers.back") }}</a>
+  {% if expired %}
+    <p class="mb-4 rounded-xl border border-stone-300 bg-stone-100 p-3 text-sm font-semibold dark:border-stone-700 dark:bg-stone-900" role="note">{{ t("offers.expired") }}</p>
+  {% endif %}
+  {% if offer.image %}
+    <img src="{{ upload_url(offer.image) }}" alt="{{ offer.title }}" class="mb-5 aspect-[16/9] w-full rounded-2xl object-cover">
+  {% endif %}
+  <div class="flex flex-wrap gap-1">
+    {% if offer.is_featured %}<span class="badge-featured">{{ icon("star", "size-3") }} {{ t("badges.featured") }}</span>{% endif %}
+    {% if offer.organization.is_premium %}<span class="badge-premium">{{ t("badges.premium") }}</span>{% endif %}
+  </div>
+  <h1 class="mt-2 text-2xl font-extrabold tracking-tight sm:text-3xl">{{ offer.title }}</h1>
+  <p class="mt-2 flex items-center gap-1.5 font-semibold text-gold-800 dark:text-gold-300">{{ icon("tag", "size-4") }} {{ validity(offer) }}</p>
+  <div class="prose-text mt-5 text-stone-800 dark:text-stone-200">{{ offer.description|rich }}</div>
+  <div class="card mt-6 p-4">
+    <p class="text-xs font-semibold uppercase text-stone-500 dark:text-stone-400">{{ t("offers.from_org") }}</p>
+    <a class="link text-lg font-bold" href="{{ url_for('public.organization_detail', slug=offer.organization.slug) }}">{{ offer.organization.name }}</a>
+    {% if offer.organization.address %}<p class="text-sm text-stone-600 dark:text-stone-400">{{ offer.organization.address }}</p>{% endif %}
+  </div>
+</article>
+{% endblock %}

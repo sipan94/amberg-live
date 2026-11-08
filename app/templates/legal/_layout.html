@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}{{ t(title_key) }} – {{ site_name }}{% endblock %}
+
+{% block content %}
+<article class="container-page max-w-3xl py-8">
+  <h1 class="text-2xl font-extrabold tracking-tight sm:text-3xl">{{ t(title_key) }}</h1>
+  <p class="mt-3 rounded-xl border-2 border-dashed border-gold-400 bg-gold-50 p-3 text-sm text-gold-950 dark:bg-gold-950/30 dark:text-gold-100">
+    {{ t("legal.draft_note") }}
+  </p>
+  <div class="legal-text prose-text mt-6 space-y-2 text-stone-800 dark:text-stone-200 [&_h2]:mt-8 [&_h2]:text-xl [&_h2]:font-bold [&_h3]:mt-5 [&_h3]:font-bold">
+    {% block legal %}{% endblock %}
+  </div>
+</article>
+{% endblock %}

@@ -1,0 +1,24 @@
+# Secrets & local config – never commit
+.env
+.claude/settings.local.json
+
+# Data: database, uploads, logs (backed up separately, see docs/DEPLOYMENT.md)
+instance/
+*.db
+*.sqlite3
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Frontend build tools (built CSS and app/static/vendor ARE committed)
+node_modules/
+
+# OS / editor
+*.log
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

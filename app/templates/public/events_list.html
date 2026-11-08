@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% from "macros/ui.html" import event_row, pagination with context %}
+
+{% block title %}{{ t("events.title") }} in Amberg – {{ site_name }}{% endblock %}
+
+{% block content %}
+<div class="container-page py-8">
+  {% set page_title = t("events.title") %}
+  {% include "public/_events_header.html" %}
+
+  <p class="mt-6 text-sm text-stone-600 dark:text-stone-400" role="status">
+    {{ t("events.results_one") if page.total == 1 else t("events.results", count=page.total) }}
+  </p>
+
+  {% if tips %}
+  <section class="mt-4" aria-labelledby="h-tips">
+    <h2 id="h-tips" class="mb-3 text-lg font-bold">{{ t("events.top_tips") }}</h2>
+    <div class="grid gap-3 lg:grid-cols-3">
+      {% for occ in tips %}{{ event_row(occ, show_day=True) }}{% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if days %}
+    {% for day, items in days %}
+      <section class="mt-8" aria-labelledby="day-{{ day.isoformat() }}">
+        <h2 id="day-{{ day.isoformat() }}" class="sticky top-16 z-20 -mx-4 mb-3 bg-stone-50/95 px-4 py-2 text-base font-bold backdrop-blur sm:mx-0 sm:px-0 dark:bg-stone-950/95">
+          {{ day|day_label }}{% if day|day_label != day|date_short %} · {{ day|date_short }}{% endif %}
+        </h2>
+        <div class="grid gap-3 lg:grid-cols-2">
+          {% for occ in items %}{{ event_row(occ) }}{% endfor %}
+        </div>
+      </section>
+    {% endfor %}
+    {{ pagination(page) }}
+  {% else %}
+    <p class="mt-8 rounded-2xl border border-dashed border-stone-300 p-8 text-center text-stone-600 dark:border-stone-700 dark:text-stone-400">{{ t("events.no_results") }}</p>
+  {% endif %}
+</div>
+{% endblock %}

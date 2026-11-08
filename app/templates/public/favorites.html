@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}{{ t("favorites.title") }} – {{ site_name }}{% endblock %}
+
+{% block content %}
+<div class="container-page py-8">
+  <h1 class="text-2xl font-extrabold tracking-tight sm:text-3xl">{{ t("favorites.title") }}</h1>
+  <p class="mt-1 text-stone-600 dark:text-stone-400">{{ t("favorites.intro") }}</p>
+
+  <div id="favorites" class="mt-6 grid gap-3 lg:grid-cols-2"
+       data-api="{{ url_for('public.favorites_data') }}"
+       data-label-remove="{{ t('favorites.remove') }}" data-label-past="{{ t('favorites.past') }}">
+    <p class="text-stone-600 dark:text-stone-400">{{ t("favorites.loading") }}</p>
+  </div>
+  <p id="favorites-empty" hidden class="mt-6 rounded-2xl border border-dashed border-stone-300 p-8 text-center text-stone-600 dark:border-stone-700 dark:text-stone-400">{{ t("favorites.empty") }}</p>
+</div>
+{% endblock %}

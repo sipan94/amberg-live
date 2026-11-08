@@ -1,0 +1,58 @@
+{% extends "legal/_layout.html" %}
+{% from "macros/legal.html" import todo %}
+
+{% block legal %}
+<p>Allgemeine Geschäftsbedingungen für Konten von Geschäften und Vereinen auf Amberg Live.
+Für das bloße Ansehen der Seite ist keine Registrierung nötig und es gelten keine besonderen Bedingungen.</p>
+
+<h2>§ 1 Anbieter und Geltungsbereich</h2>
+<p>Anbieter ist {{ todo("Name / Firma und Anschrift wie im Impressum") }}. Diese Bedingungen gelten für die Nutzung eines Kontos, mit dem
+Geschäfte, Gastronomiebetriebe, Dienstleister und Vereine aus Amberg und Umgebung Profile, Veranstaltungen und Angebote eintragen.</p>
+
+<h2>§ 2 Leistungen</h2>
+<p>Das Eintragen von Profilen, Veranstaltungen und Angeboten ist derzeit kostenlos. Hervorgehobene Platzierungen („Premium“, „Tipp“)
+können künftig kostenpflichtig angeboten werden; dafür gelten dann gesonderte Bedingungen, die vorher angezeigt und ausdrücklich bestätigt werden.
+Ein Anspruch auf eine bestimmte Platzierung oder Reichweite besteht nicht.</p>
+
+<h2>§ 3 Registrierung</h2>
+<p>Für die Registrierung ist eine gültige E-Mail-Adresse nötig, die bestätigt werden muss. Die Angaben müssen wahr sein.
+Zugangsdaten sind geheim zu halten. Pro Geschäft oder Verein soll nur ein Konto angelegt werden.</p>
+
+<h2>§ 4 Inhalte und Rechte</h2>
+<ol>
+  <li>Du bist für deine Einträge selbst verantwortlich und sicherst zu, dass Termine, Preise und sonstige Angaben zutreffen.</li>
+  <li>Du bestätigst, dass du an allen hochgeladenen Texten und Bildern die nötigen Rechte hast (z. B. Urheber- und Persönlichkeitsrechte abgebildeter Personen).</li>
+  <li>Du räumst uns ein einfaches, unentgeltliches, auf die Dauer der Veröffentlichung beschränktes Recht ein, deine Inhalte auf Amberg Live
+      und in Vorschauen beim Teilen (z. B. in Messenger-Vorschauen und Suchmaschinen) zu zeigen. Dazu gehört, Bilder zu verkleinern, zuzuschneiden und in andere Formate umzuwandeln.
+      Das Recht endet, wenn du den Inhalt oder dein Konto löschst.</li>
+  <li>Nicht erlaubt sind rechtswidrige, beleidigende, diskriminierende, irreführende oder jugendgefährdende Inhalte, reine Werbung ohne Bezug zu einem konkreten Angebot oder Termin
+      sowie Inhalte ohne Bezug zu Amberg und Umgebung.</li>
+  <li>Stellt ein Dritter wegen deiner Inhalte berechtigte Ansprüche gegen uns, stellst du uns davon frei, soweit du die Rechtsverletzung zu vertreten hast.</li>
+</ol>
+
+<h2>§ 5 Prüfung und Veröffentlichung</h2>
+<p>Wir prüfen Einträge vor der Veröffentlichung. Ein Anspruch auf Veröffentlichung besteht nicht. Wir dürfen Einträge ablehnen, kürzen,
+nachträglich entfernen und Konten sperren, wenn sie gegen diese Bedingungen oder geltendes Recht verstoßen. Über eine Ablehnung informieren wir dich mit Begründung.</p>
+
+<h2>§ 6 Verfügbarkeit</h2>
+<p>Wir bemühen uns um einen störungsfreien Betrieb, können aber keine ständige Erreichbarkeit garantieren. Wartungsarbeiten und technische Störungen sind möglich.</p>
+
+<h2>§ 7 Haftung</h2>
+<p>Wir haften unbeschränkt bei Vorsatz und grober Fahrlässigkeit sowie bei Verletzung von Leben, Körper oder Gesundheit.
+Bei leichter Fahrlässigkeit haften wir nur bei Verletzung wesentlicher Vertragspflichten und begrenzt auf den vorhersehbaren, typischen Schaden.
+Für die kostenlose Nutzung gilt im Übrigen die gesetzliche Haftungserleichterung für unentgeltliche Leistungen.</p>
+
+<h2>§ 8 Laufzeit und Kündigung</h2>
+<p>Du kannst dein Konto jederzeit ohne Frist in den Einstellungen löschen. Wir können die kostenlose Nutzung mit einer Frist von zwei Wochen beenden;
+das Recht zur Sperrung aus wichtigem Grund bleibt unberührt.</p>
+
+<h2>§ 9 Änderungen</h2>
+<p>Wir können diese Bedingungen ändern, wenn es sachlich gerechtfertigt ist (z. B. neue Funktionen, Gesetzesänderungen). Änderungen teilen wir dir mindestens
+zwei Wochen vorher per E-Mail mit. Widersprichst du nicht innerhalb dieser Frist, gelten sie als angenommen; auf diese Folge weisen wir in der Mitteilung hin.</p>
+
+<h2>§ 10 Schlussbestimmungen</h2>
+<p>Es gilt das Recht der Bundesrepublik Deutschland. Ist der Nutzer Kaufmann, ist Gerichtsstand {{ todo("Ort, z. B. Amberg") }}.
+Sollte eine Bestimmung unwirksam sein, bleibt der Rest wirksam.</p>
+
+<p class="mt-8 text-sm text-stone-600 dark:text-stone-400">Stand: {{ todo("Datum") }}</p>
+{% endblock %}

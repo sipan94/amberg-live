@@ -1,0 +1,80 @@
+{# Shared header for list / calendar / map: title, view switcher, filters. Expects: view, state, categories #}
+{% from "macros/icons.html" import icon %}
+{% set args = request.args.to_dict() %}
+{% set _ = args.pop("seite", None) %}
+{% set _ = args.pop("monat", None) %}
+
+<div class="flex flex-wrap items-center justify-between gap-3">
+  <h1 class="text-2xl font-extrabold tracking-tight sm:text-3xl">{{ page_title }}</h1>
+  <nav class="flex rounded-xl border border-stone-300 bg-white p-1 dark:border-stone-700 dark:bg-stone-900" aria-label="{{ t('events.views_label') }}">
+    {% for key, endpoint, icon_name, label in [
+      ("list", "public.events", "list", t("events.list")),
+      ("calendar", "public.events_calendar", "calendar", t("events.calendar")),
+      ("map", "public.events_map", "map", t("events.map"))] %}
+      <a href="{{ url_for(endpoint, **args) }}" {% if view == key %}aria-current="page"{% endif %}
+         class="flex min-h-10 items-center gap-1.5 rounded-lg px-3 text-sm font-semibold no-underline {% if view == key %}bg-gold-400 text-stone-950{% else %}text-stone-700 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-stone-800{% endif %}">
+        {{ icon(icon_name, "size-4") }}{{ label }}
+      </a>
+    {% endfor %}
+  </nav>
+</div>
+
+<form id="suche" method="get" action="{{ url_for(request.endpoint) }}" class="mt-5 space-y-4" role="search">
+  {% if view == "calendar" and request.args.get("monat") %}<input type="hidden" name="monat" value="{{ request.args.get('monat') }}">{% endif %}
+  <div class="flex gap-2">
+    <label for="f-q" class="sr-only">{{ t("events.search") }}</label>
+    <input id="f-q" name="q" type="search" value="{{ state.q }}" class="input" placeholder="{{ t('events.search_placeholder') }}">
+    <button type="submit" class="btn-primary shrink-0">{{ icon("search", "size-4") }}<span class="sr-only sm:not-sr-only">{{ t("events.apply") }}</span></button>
+  </div>
+
+  {% if view != "calendar" %}
+  <fieldset>
+    <legend class="sr-only">{{ t("events.period") }}</legend>
+    <div class="scroll-row">
+      {% for value, label in [("alle", t("events.period_all")), ("heute", t("events.period_today")), ("wochenende", t("events.period_weekend")), ("woche", t("events.period_week")), ("monat", t("events.period_month"))] %}
+        <label class="chip cursor-pointer has-[:checked]:chip-active has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-gold-500">
+          <input type="radio" name="zeitraum" value="{{ value }}" class="sr-only" data-autosubmit {% if state.period == value %}checked{% endif %}>{{ label }}
+        </label>
+      {% endfor %}
+    </div>
+  </fieldset>
+  {% endif %}
+
+  <details class="group rounded-2xl border border-stone-200 bg-white dark:border-stone-800 dark:bg-stone-900" {% if state.category or state.price or state.von or state.bis %}open{% endif %}>
+    <summary class="flex min-h-11 cursor-pointer list-none items-center gap-2 px-4 text-sm font-semibold">
+      {{ icon("filter", "size-4") }} {{ t("events.filter") }}
+      <span class="ml-auto transition group-open:rotate-90">{{ icon("chevron-right", "size-4") }}</span>
+    </summary>
+    <div class="grid gap-4 border-t border-stone-200 p-4 sm:grid-cols-2 lg:grid-cols-4 dark:border-stone-800">
+      <div>
+        <label class="label" for="f-cat">{{ t("events.category") }}</label>
+        <select id="f-cat" name="kategorie" class="input">
+          <option value="">{{ t("events.all_categories") }}</option>
+          {% for cat in categories %}<option value="{{ cat.slug }}" {% if state.category == cat.slug %}selected{% endif %}>{{ cat.name }}</option>{% endfor %}
+        </select>
+      </div>
+      <div>
+        <label class="label" for="f-price">{{ t("events.price") }}</label>
+        <select id="f-price" name="preis" class="input">
+          <option value="">{{ t("events.price_all") }}</option>
+          <option value="kostenlos" {% if state.price == "kostenlos" %}selected{% endif %}>{{ t("events.price_free") }}</option>
+          <option value="kostenpflichtig" {% if state.price == "kostenpflichtig" %}selected{% endif %}>{{ t("events.price_paid") }}</option>
+        </select>
+      </div>
+      {% if view != "calendar" %}
+      <div>
+        <label class="label" for="f-von">{{ t("events.from") }}</label>
+        <input id="f-von" type="date" name="von" class="input" value="{{ state.von.isoformat() if state.von else '' }}" min="{{ now.date().isoformat() }}">
+      </div>
+      <div>
+        <label class="label" for="f-bis">{{ t("events.to") }}</label>
+        <input id="f-bis" type="date" name="bis" class="input" value="{{ state.bis.isoformat() if state.bis else '' }}" min="{{ now.date().isoformat() }}">
+      </div>
+      {% endif %}
+      <div class="flex flex-wrap gap-2 sm:col-span-2 lg:col-span-4">
+        <button type="submit" class="btn-primary">{{ t("events.apply") }}</button>
+        {% if state.active %}<a class="btn-secondary" href="{{ url_for(request.endpoint) }}">{{ t("events.reset") }}</a>{% endif %}
+      </div>
+    </div>
+  </details>
+</form>

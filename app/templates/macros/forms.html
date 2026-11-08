@@ -1,0 +1,68 @@
+{# Accessible form fields: label, hint and errors are linked via aria-describedby. #}
+
+{% macro _describedby(f, help) -%}
+{{ ((f.id ~ "-help ") if help else "") ~ ((f.id ~ "-err") if f.errors else "") }}
+{%- endmacro %}
+
+{% macro _messages(f, help) %}
+  {% if help %}<p id="{{ f.id }}-help" class="mt-1 text-sm text-stone-600 dark:text-stone-400">{{ help }}</p>{% endif %}
+  {% if f.errors %}
+    <p id="{{ f.id }}-err" class="mt-1 text-sm font-semibold text-rose-700 dark:text-rose-400">{{ f.errors|join(" ") }}</p>
+  {% endif %}
+{% endmacro %}
+
+{% macro field(f, label, help=None, required=False, cls="", attrs={}) %}
+<div class="{{ cls }}">
+  <label class="label" for="{{ f.id }}">{{ label }}{% if required %} <span class="text-rose-700 dark:text-rose-400" aria-hidden="true">*</span>{% endif %}</label>
+  {% set a = dict(attrs) %}
+  {% set described = _describedby(f, help)|trim %}
+  {% set _ = a.update({"class": "input" ~ (" !border-rose-500" if f.errors else ""),
+                       "aria-invalid": "true" if f.errors else None,
+                       "aria-describedby": described or None,
+                       "aria-required": "true" if required else None}) %}
+  {{ f(**a) }}
+  {{ _messages(f, help) }}
+</div>
+{% endmacro %}
+
+{% macro checkbox(f, label, help=None, cls="") %}
+<div class="{{ cls }}">
+  <label class="flex cursor-pointer items-start gap-3 rounded-xl p-1">
+    {{ f(class_="mt-0.5 size-5 shrink-0 accent-gold-500", **{"aria-invalid": "true" if f.errors else None,
+                                                              "aria-describedby": (_describedby(f, help)|trim) or None}) }}
+    <span class="text-sm">{{ label }}</span>
+  </label>
+  {{ _messages(f, help) }}
+</div>
+{% endmacro %}
+
+{% macro image_field(f, remove_f, label, current=None, help=None) %}
+<div>
+  <span class="label">{{ label }}</span>
+  {% if current %}
+    <div class="mb-2 flex items-center gap-3">
+      <img src="{{ upload_url(current, small=True) }}" alt="{{ t('form.current_image') }}" class="h-16 w-24 rounded-lg object-cover">
+      <label class="flex items-center gap-2 text-sm">{{ remove_f(class_="size-4 accent-gold-500") }} {{ t("form.remove_image") }}</label>
+    </div>
+  {% endif %}
+  {{ f(accept="image/jpeg,image/png,image/webp,image/gif",
+       class_="block w-full text-sm file:mr-3 file:min-h-[2.75rem] file:rounded-xl file:border-0 file:bg-stone-200 file:px-4 file:font-semibold hover:file:bg-stone-300 dark:file:bg-stone-800 dark:file:text-stone-100",
+       **{"aria-label": label, "aria-describedby": (_describedby(f, help)|trim) or None}) }}
+  {{ _messages(f, help) }}
+</div>
+{% endmacro %}
+
+{% macro error_summary(form) %}
+{% if form.errors %}
+  <div class="rounded-xl border border-rose-300 bg-rose-50 p-3 text-sm font-semibold text-rose-800 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-200" role="alert">
+    {{ t("form.check_errors") }}
+  </div>
+{% endif %}
+{% endmacro %}
+
+{% macro status_badge(status) %}
+{% set styles = {"pending": "bg-gold-100 text-gold-900 dark:bg-gold-400/20 dark:text-gold-200",
+                 "approved": "bg-emerald-100 text-emerald-900 dark:bg-emerald-400/20 dark:text-emerald-200",
+                 "rejected": "bg-rose-100 text-rose-900 dark:bg-rose-400/20 dark:text-rose-200"} %}
+<span class="badge {{ styles.get(status, '') }}">{{ t("status." ~ status) }}</span>
+{% endmacro %}

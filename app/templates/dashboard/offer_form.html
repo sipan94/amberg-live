@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% from "macros/forms.html" import field, checkbox, image_field, error_summary %}
+{% set heading = t("form.offer_title_edit") if offer else t("form.offer_title_new") %}
+{% set mb = config.MAX_CONTENT_LENGTH // 1048576 %}
+{% block title %}{{ heading }} – {{ site_name }}{% endblock %}
+
+{% block content %}
+<div class="container-page max-w-2xl py-8">
+  <a href="{{ back_url or url_for('dashboard.index') }}" class="link text-sm">← {{ t("admin.back") if admin_mode else t("dashboard.back") }}</a>
+  <h1 class="mt-3 text-2xl font-extrabold tracking-tight">{{ heading }}</h1>
+  <p class="mt-1 text-sm text-stone-600 dark:text-stone-400">{% if not admin_mode %}{{ t("form.review_note") }} {% endif %}{{ t("form.required_note") }}</p>
+
+  <form method="post" enctype="multipart/form-data" novalidate class="card mt-6 space-y-5 p-5">
+    {{ form.csrf_token }}
+    {{ error_summary(form) }}
+    {{ field(form.title, t("form.title"), required=True) }}
+    {{ field(form.description, t("form.description"), help=t("form.description_help"), required=True, attrs={"rows": 5}) }}
+    <div class="grid gap-4 sm:grid-cols-2">
+      {{ field(form.valid_from, t("form.valid_from"), required=True) }}
+      {{ field(form.valid_until, t("form.valid_until")) }}
+    </div>
+    {{ image_field(form.image, form.remove_image, t("form.image"), current=offer.image if offer else None, help=t("form.image_help", mb=mb)) }}
+    {% if admin_mode %}<input type="hidden" name="rights_confirmed" value="y">{% else %}{{ checkbox(form.rights_confirmed, t("form.rights")) }}{% endif %}
+    <div class="flex flex-wrap gap-2">
+      <button type="submit" class="btn-primary">{{ t("form.save") if admin_mode else t("form.submit_review") }}</button>
+      <a href="{{ back_url or url_for('dashboard.index') }}" class="btn-secondary">{{ t("form.cancel") }}</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

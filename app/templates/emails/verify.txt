@@ -1,0 +1,13 @@
+Hallo,
+
+danke für deine Registrierung bei {{ site_name }}!
+
+Bitte bestätige deine E-Mail-Adresse mit diesem Link:
+
+{{ link }}
+
+Der Link ist 3 Tage gültig. Falls du dich nicht registriert hast, kannst du diese E-Mail einfach ignorieren.
+
+Viele Grüße
+{{ site_name }}
+{{ site_url }}

@@ -1,0 +1,6 @@
+{% if is_new %}Neue Einreichung{% else %}Geänderter Eintrag{% endif %} zur Prüfung:
+
+{{ kind }}: {{ label }}
+Von: {{ org_name }}
+
+Zur Moderation: {{ admin_url }}

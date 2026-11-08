@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% from "macros/icons.html" import icon %}
+
+{% block title %}{{ t("events.calendar_title") }} – {{ site_name }}{% endblock %}
+
+{% block content %}
+<div class="container-page py-8">
+  {% set page_title = t("events.calendar_title") %}
+  {% include "public/_events_header.html" %}
+
+  <div class="mt-6 flex items-center justify-between gap-2">
+    <a class="btn-secondary" href="{{ url_with(monat=prev_month.strftime('%Y-%m')) }}" aria-label="{{ t('events.calendar_prev') }}">{{ icon("chevron-left", "size-4") }}</a>
+    <h2 class="text-center text-xl font-bold">{{ t("dates.months")[month.month - 1] }} {{ month.year }}</h2>
+    <a class="btn-secondary" href="{{ url_with(monat=next_month.strftime('%Y-%m')) }}" aria-label="{{ t('events.calendar_next') }}">{{ icon("chevron-right", "size-4") }}</a>
+  </div>
+  {% if month.year != now.year or month.month != now.month %}
+    <p class="mt-2 text-center"><a class="link text-sm" href="{{ url_with(monat=None) }}">{{ t("events.calendar_this_month") }}</a></p>
+  {% endif %}
+
+  <table class="mt-4 w-full table-fixed border-separate border-spacing-1">
+    <thead>
+      <tr>{% for wd in t("dates.weekdays_short") %}<th scope="col" class="pb-1 text-xs font-semibold text-stone-600 dark:text-stone-400">{{ wd }}</th>{% endfor %}</tr>
+    </thead>
+    <tbody>
+      {% for week in weeks %}
+      <tr>
+        {% for day in week %}
+          {% set items = by_day.get(day, []) %}
+          {% set in_month = day.month == month.month %}
+          {% set is_today = day == now.date() %}
+          <td class="h-16 align-top sm:h-28">
+            {% set cell_cls = "flex h-full flex-col rounded-xl border p-1 sm:p-1.5 " ~ ("border-gold-400 bg-gold-50 dark:bg-gold-950/30 " if is_today else "border-stone-200 bg-white dark:border-stone-800 dark:bg-stone-900 ") ~ ("" if in_month else "opacity-40") %}
+            {% if items and day >= now.date() %}
+              <a href="{{ url_for('public.events', von=day.isoformat(), bis=day.isoformat(), kategorie=state.category, preis=state.price, q=state.q or None) }}"
+                 class="{{ cell_cls }} no-underline hover:border-gold-400"
+                 aria-label="{{ t('events.calendar_day_link', count=items|length, date=day|date_short) }}">
+                <span class="text-sm font-bold {% if is_today %}text-gold-800 dark:text-gold-300{% endif %}">{{ day.day }}</span>
+                <span class="mt-auto flex flex-wrap gap-0.5 sm:hidden" aria-hidden="true">
+                  {% for occ in items[:4] %}<span class="size-1.5 rounded-full" style="background: {{ occ.event.category.color if occ.event.category else '#64748b' }}"></span>{% endfor %}
+                </span>
+                <span class="hidden space-y-0.5 sm:block">
+                  {% for occ in items[:2] %}
+                    <span class="block truncate rounded px-1 text-[11px] leading-4 text-stone-800 dark:text-stone-200" style="background: {{ occ.event.category.color if occ.event.category else '#64748b' }}26">{{ occ.event.title }}</span>
+                  {% endfor %}
+                  {% if items|length > 2 %}<span class="block px-1 text-[11px] text-stone-600 dark:text-stone-400">{{ t("events.calendar_more", count=items|length - 2) }}</span>{% endif %}
+                </span>
+              </a>
+            {% else %}
+              <div class="{{ cell_cls }}"><span class="text-sm text-stone-500">{{ day.day }}</span></div>
+            {% endif %}
+          </td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

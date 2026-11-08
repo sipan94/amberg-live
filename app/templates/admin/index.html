@@ -1,0 +1,66 @@
+{% extends "admin/_layout.html" %}
+
+{% macro stat(label, value, hint=None, link=None) %}
+<div class="card p-4">
+  <p class="text-sm text-stone-600 dark:text-stone-400">{{ label }}</p>
+  <p class="mt-1 text-3xl font-extrabold">{% if link %}<a href="{{ link }}" class="hover:underline">{{ value }}</a>{% else %}{{ value }}{% endif %}</p>
+  {% if hint %}<p class="mt-0.5 text-xs text-stone-500 dark:text-stone-400">{{ hint }}</p>{% endif %}
+</div>
+{% endmacro %}
+
+{% block admin_content %}
+<h1 class="sr-only">{{ t("admin.nav_overview") }}</h1>
+
+{% set pending_total = pending_counts.values()|sum %}
+{% if pending_total %}
+  <a href="{{ url_for('admin.queue') }}" class="mb-6 flex items-center justify-between gap-3 rounded-2xl border border-gold-300 bg-gold-50 p-4 font-semibold no-underline hover:border-gold-500 dark:border-gold-700 dark:bg-gold-950/30">
+    <span>{{ t("admin.pending_banner", count=pending_total) }}</span>
+    <span class="text-sm">{{ t("admin.pending_detail", events=pending_counts.veranstaltung, offers=pending_counts.angebot, orgs=pending_counts.profil) }} →</span>
+  </a>
+{% endif %}
+
+<div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+  {{ stat(t("admin.stat_views"), "{:,}".format(views_total).replace(",", "."), t("admin.stat_views_hint")) }}
+  {{ stat(t("admin.stat_events"), stats.events_upcoming, t("admin.stat_events_hint"), url_for("admin.content", kind="veranstaltung")) }}
+  {{ stat(t("admin.stat_orgs"), stats.orgs, t("admin.stat_premium", count=stats.premium), url_for("admin.content", kind="profil")) }}
+  {{ stat(t("admin.stat_users"), stats.users, t("admin.stat_users_new", count=stats.users_new), url_for("admin.users")) }}
+</div>
+
+<section class="card mt-6 p-4" aria-labelledby="h-views">
+  <h2 id="h-views" class="font-bold">{{ t("admin.chart_title") }}</h2>
+  <p class="text-sm text-stone-600 dark:text-stone-400">{{ t("admin.chart_hint") }}</p>
+  {# Simple CSS bar chart: no chart library, no external requests #}
+  <div class="mt-4 flex h-40 items-end gap-[3px]" role="img" aria-label="{{ t('admin.chart_title') }}: {{ views_total }}">
+    {% for day, value in days %}
+      <div class="group relative flex h-full flex-1 items-end">
+        <div class="w-full rounded-t {% if day == now.date() %}bg-gold-500{% else %}bg-gold-300 dark:bg-gold-600{% endif %}"
+             style="height: {{ (value / views_max * 100)|round(1) if value else 0 }}%; min-height: {{ '2px' if value else '1px' }}"></div>
+        <span class="pointer-events-none absolute -top-7 left-1/2 hidden -translate-x-1/2 whitespace-nowrap rounded bg-stone-900 px-1.5 py-0.5 text-xs text-white group-hover:block">{{ day|date_short }}: {{ value }}</span>
+      </div>
+    {% endfor %}
+  </div>
+  <div class="mt-1 flex justify-between text-xs text-stone-500"><span>{{ days[0][0]|date_short }}</span><span>{{ t("dates.today") }}</span></div>
+</section>
+
+<div class="mt-6 grid gap-6 lg:grid-cols-2">
+  <section class="card p-4" aria-labelledby="h-top">
+    <h2 id="h-top" class="mb-3 font-bold">{{ t("admin.top_events") }}</h2>
+    <ol class="space-y-2 text-sm">
+      {% for ev in top_events %}
+        <li class="flex justify-between gap-3">
+          <a class="link truncate" href="{{ url_for('public.event_detail', slug=ev.slug) }}">{{ ev.title }}</a>
+          <span class="shrink-0 tabular-nums text-stone-600 dark:text-stone-400">{{ ev.view_count }}</span>
+        </li>
+      {% else %}<li class="text-stone-500">–</li>{% endfor %}
+    </ol>
+  </section>
+  <section class="card p-4" aria-labelledby="h-recent">
+    <div class="mb-3 flex justify-between"><h2 id="h-recent" class="font-bold">{{ t("admin.recent") }}</h2><a class="link text-sm" href="{{ url_for('admin.log') }}">{{ t("home.show_all") }}</a></div>
+    <ul class="space-y-2 text-sm">
+      {% for entry in recent %}
+        <li><span class="text-stone-500">{{ entry.created_at.strftime("%d.%m. %H:%M") }}</span> · {{ t("admin.action_" ~ entry.action) }} · {{ entry.target_label }}</li>
+      {% else %}<li class="text-stone-500">–</li>{% endfor %}
+    </ul>
+  </section>
+</div>
+{% endblock %}

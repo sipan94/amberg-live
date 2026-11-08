@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% from "macros/forms.html" import field %}
+{% block title %}{{ t("dashboard.settings") }} – {{ site_name }}{% endblock %}
+
+{% block content %}
+<div class="container-page max-w-xl py-8">
+  <a href="{{ url_for('dashboard.index') }}" class="link text-sm">← {{ t("dashboard.back") }}</a>
+  <h1 class="mt-3 text-2xl font-extrabold tracking-tight">{{ t("dashboard.settings") }}</h1>
+
+  <section class="card mt-6 p-5" aria-labelledby="h-pw">
+    <h2 id="h-pw" class="mb-4 text-lg font-bold">{{ t("dashboard.password_title") }}</h2>
+    <form method="post" novalidate class="space-y-4">
+      {{ form.csrf_token }}
+      {{ field(form.current_password, t("dashboard.current_password"), attrs={"autocomplete": "current-password"}) }}
+      {{ field(form.password, t("dashboard.new_password"), help=t("auth.password_help"), attrs={"autocomplete": "new-password"}) }}
+      {{ field(form.password2, t("auth.password2"), attrs={"autocomplete": "new-password"}) }}
+      <button type="submit" class="btn-primary">{{ t("dashboard.save") }}</button>
+    </form>
+  </section>
+
+  <section class="mt-6 rounded-2xl border border-rose-300 p-5 dark:border-rose-900" aria-labelledby="h-danger">
+    <h2 id="h-danger" class="text-lg font-bold text-rose-800 dark:text-rose-300">{{ t("dashboard.danger_title") }}</h2>
+    <p class="mt-1 text-sm text-stone-700 dark:text-stone-300">{{ t("dashboard.danger_text") }}</p>
+    <a class="btn mt-4 border border-rose-400 text-rose-800 hover:bg-rose-50 dark:text-rose-300 dark:hover:bg-rose-950/40" href="{{ url_for('dashboard.delete_account') }}">{{ t("dashboard.delete_account") }}</a>
+  </section>
+</div>
+{% endblock %}

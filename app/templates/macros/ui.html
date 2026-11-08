@@ -1,0 +1,176 @@
+{% from "macros/icons.html" import icon %}
+
+{% macro fav_button(slug, cls="") -%}
+<button type="button" data-fav="{{ slug }}" aria-pressed="false"
+        aria-label="{{ t('favorites.add') }}" data-label-add="{{ t('favorites.add') }}" data-label-remove="{{ t('favorites.remove') }}"
+        class="group relative z-10 inline-flex size-11 items-center justify-center rounded-full bg-white/90 text-stone-700 shadow-sm backdrop-blur hover:text-rose-600 aria-pressed:text-rose-600 dark:bg-stone-900/90 dark:text-stone-200 {{ cls }}">
+  {{ icon("heart", "size-5 group-aria-pressed:fill-current") }}
+</button>
+{%- endmacro %}
+
+{% macro highlight_badges(event) -%}
+{% if event.is_featured %}<span class="badge-featured">{{ icon("star", "size-3") }} {{ t("badges.featured") }}</span>{% endif %}
+{% if event.organization.is_premium %}<span class="badge-premium">{{ t("badges.premium") }}</span>{% endif %}
+{%- endmacro %}
+
+{% macro placeholder(category, icon_name=None, cls="") -%}
+{% set color = category.color if category else "#64748b" %}
+<div class="flex size-full items-center justify-center {{ cls }}" style="background-image: linear-gradient(135deg, {{ color }}22, {{ color }}66); color: {{ color }}">
+  {{ icon(icon_name or (category.icon if category else "other"), "size-12 opacity-80") }}
+</div>
+{%- endmacro %}
+
+{# Big card with image, used on the home page #}
+{% macro event_card(occ) -%}
+{% set ev = occ.event %}
+<article class="card card-link relative flex flex-col {% if occ.is_highlight %}ring-2 ring-gold-400{% endif %}">
+  <div class="relative aspect-[16/9] bg-stone-100 dark:bg-stone-800">
+    {% if ev.image %}
+      <img src="{{ upload_url(ev.image, small=True) }}" alt="{{ t('events.image_alt', title=ev.title) }}" loading="lazy" class="size-full object-cover">
+    {% else %}
+      {{ placeholder(ev.category) }}
+    {% endif %}
+    <div class="absolute top-2 left-2 rounded-xl bg-white px-2.5 py-1 text-center leading-tight shadow-sm dark:bg-stone-900">
+      <span class="block text-lg font-extrabold">{{ occ.start.day }}</span>
+      <span class="block text-[11px] font-semibold uppercase text-stone-600 dark:text-stone-300">{{ t("dates.months_short")[occ.start.month - 1] }}</span>
+    </div>
+    <div class="absolute top-2 right-2">{{ fav_button(ev.slug) }}</div>
+    <div class="absolute bottom-2 left-2 flex gap-1">{{ highlight_badges(ev) }}</div>
+  </div>
+  <div class="flex flex-1 flex-col gap-1.5 p-4">
+    {% if ev.category %}
+      <p class="flex items-center gap-1.5 text-xs font-medium text-stone-600 dark:text-stone-400">
+        <span class="size-2 rounded-full" style="background: {{ ev.category.color }}"></span>{{ ev.category.name }}
+      </p>
+    {% endif %}
+    <h3 class="text-base font-bold leading-snug">
+      <a href="{{ url_for('public.event_detail', slug=ev.slug) }}" class="after:absolute after:inset-0 hover:underline">{{ ev.title }}</a>
+    </h3>
+    <p class="flex items-center gap-1.5 text-sm text-stone-700 dark:text-stone-300">
+      {{ icon("clock", "size-4 shrink-0") }}
+      {% if occ.is_ongoing(now) %}<span class="font-semibold text-emerald-700 dark:text-emerald-400">{{ t("events.ongoing") }}</span> ·{% endif %}
+      {{ occ.start|when(occ.end) }}
+    </p>
+    {% if ev.location_name %}
+      <p class="flex items-center gap-1.5 text-sm text-stone-600 dark:text-stone-400">{{ icon("pin", "size-4 shrink-0") }}<span class="truncate">{{ ev.location_name }}</span></p>
+    {% endif %}
+    <p class="mt-auto pt-1 text-sm font-semibold">{{ ev|price }}</p>
+  </div>
+</article>
+{%- endmacro %}
+
+{# Compact row, used in lists grouped by day #}
+{% macro event_row(occ, show_day=False) -%}
+{% set ev = occ.event %}
+<article class="relative flex items-start gap-3 rounded-2xl border border-stone-200 bg-white p-3 shadow-sm transition hover:border-gold-400 dark:border-stone-800 dark:bg-stone-900 {% if occ.is_highlight %}ring-2 ring-gold-400{% endif %}">
+  <div class="w-16 shrink-0 rounded-xl py-2 text-center" style="background: {{ ev.category.color if ev.category else '#64748b' }}1f">
+    {% if show_day %}
+      <span class="block text-xs font-semibold text-stone-600 dark:text-stone-300">{{ t("dates.weekdays_short")[occ.start.weekday()] }}</span>
+      <span class="block text-lg font-extrabold leading-tight">{{ occ.start.day }}.</span>
+    {% else %}
+      <span class="block text-base font-extrabold">{{ occ.start.strftime("%H:%M") }}</span>
+      {% if occ.end and occ.end.date() == occ.start.date() %}<span class="block text-xs text-stone-600 dark:text-stone-400">– {{ occ.end.strftime("%H:%M") }}</span>{% endif %}
+    {% endif %}
+  </div>
+  <div class="min-w-0 flex-1">
+    <div class="mb-1 flex flex-wrap gap-1">{{ highlight_badges(ev) }}</div>
+    <h3 class="font-bold leading-snug">
+      <a href="{{ url_for('public.event_detail', slug=ev.slug) }}" class="after:absolute after:inset-0 hover:underline">{{ ev.title }}</a>
+    </h3>
+    <p class="mt-0.5 text-sm text-stone-600 dark:text-stone-400">
+      {% if show_day %}{{ occ.start|when(occ.end) }}{% elif occ.end and occ.end.date() != occ.start.date() %}{{ occ.start|when(occ.end) }}{% endif %}
+      {% if ev.location_name %}{% if show_day %} · {% endif %}{{ ev.location_name }}{% endif %}
+    </p>
+    <p class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-stone-600 dark:text-stone-400">
+      {% if ev.category %}<span class="inline-flex items-center gap-1"><span class="size-2 rounded-full" style="background: {{ ev.category.color }}"></span>{{ ev.category.name }}</span>{% endif %}
+      <span class="font-semibold text-stone-800 dark:text-stone-200">{{ ev|price }}</span>
+      {% if occ.is_ongoing(now) %}<span class="font-semibold text-emerald-700 dark:text-emerald-400">{{ t("events.ongoing") }}</span>{% endif %}
+    </p>
+  </div>
+  {{ fav_button(ev.slug, "shrink-0 !bg-transparent !shadow-none") }}
+</article>
+{%- endmacro %}
+
+{% macro offer_card(offer) -%}
+<article class="card card-link relative flex flex-col {% if offer.is_featured or offer.organization.is_premium %}ring-2 ring-gold-400{% endif %}">
+  <div class="relative aspect-[16/9] bg-stone-100 dark:bg-stone-800">
+    {% if offer.image %}
+      <img src="{{ upload_url(offer.image, small=True) }}" alt="{{ offer.title }}" loading="lazy" class="size-full object-cover">
+    {% else %}
+      <div class="flex size-full items-center justify-center bg-gradient-to-br from-gold-100 to-gold-300 text-gold-800 dark:from-gold-900/40 dark:to-gold-700/40 dark:text-gold-200">{{ icon("tag", "size-12") }}</div>
+    {% endif %}
+    <div class="absolute bottom-2 left-2 flex gap-1">
+      {% if offer.is_featured %}<span class="badge-featured">{{ icon("star", "size-3") }} {{ t("badges.featured") }}</span>{% endif %}
+      {% if offer.organization.is_premium %}<span class="badge-premium">{{ t("badges.premium") }}</span>{% endif %}
+    </div>
+  </div>
+  <div class="flex flex-1 flex-col gap-1 p-4">
+    <p class="text-xs font-medium text-stone-600 dark:text-stone-400">{{ offer.organization.name }}</p>
+    <h3 class="font-bold leading-snug">
+      <a href="{{ url_for('public.offer_detail', slug=offer.slug) }}" class="after:absolute after:inset-0 hover:underline">{{ offer.title }}</a>
+    </h3>
+    <p class="mt-auto pt-1 text-sm text-stone-700 dark:text-stone-300">{{ validity(offer) }}</p>
+  </div>
+</article>
+{%- endmacro %}
+
+{% macro validity(offer) -%}
+{% if offer.valid_from > now.date() %}{{ t("offers.valid_from", date=offer.valid_from|date_short) }}{% if offer.valid_until %} · {% endif %}{% endif %}
+{%- if offer.valid_until %}{{ t("offers.valid_until", date=offer.valid_until|date_numeric) }}{% elif offer.valid_from <= now.date() %}{{ t("offers.valid_open") }}{% endif %}
+{%- endmacro %}
+
+{% macro org_card(org) -%}
+<article class="card card-link relative flex gap-4 p-4 {% if org.is_premium %}ring-2 ring-gold-400{% endif %}">
+  <div class="size-16 shrink-0 overflow-hidden rounded-2xl bg-stone-100 dark:bg-stone-800">
+    {% if org.logo %}
+      <img src="{{ upload_url(org.logo, small=True) }}" alt="{{ t('orgs.logo_alt', name=org.name) }}" loading="lazy" class="size-full object-cover">
+    {% else %}
+      <div class="flex size-full items-center justify-center text-2xl font-extrabold {% if org.is_club %}bg-teal-100 text-teal-800 dark:bg-teal-900/40 dark:text-teal-200{% else %}bg-gold-100 text-gold-800 dark:bg-gold-900/40 dark:text-gold-200{% endif %}" aria-hidden="true">{{ org.name[0] }}</div>
+    {% endif %}
+  </div>
+  <div class="min-w-0 flex-1">
+    <div class="mb-1 flex flex-wrap gap-1">
+      <span class="badge-muted">{{ t("badges.club") if org.is_club else t("badges.business") }}</span>
+      {% if org.is_premium %}<span class="badge-premium">{{ t("badges.premium") }}</span>{% endif %}
+    </div>
+    <h3 class="font-bold leading-snug">
+      <a href="{{ url_for('public.organization_detail', slug=org.slug) }}" class="after:absolute after:inset-0 hover:underline">{{ org.name }}</a>
+    </h3>
+    <p class="mt-1 line-clamp-2 text-sm text-stone-600 dark:text-stone-400">{{ org.description|plain(140) }}</p>
+  </div>
+</article>
+{%- endmacro %}
+
+{% macro pagination(page) -%}
+{% if page.pages > 1 %}
+<nav class="mt-8 flex items-center justify-between gap-3" aria-label="{{ t('pagination.label') }}">
+  {% if page.has_prev %}
+    <a class="btn-secondary" href="{{ url_with(seite=page.prev_num) }}" rel="prev">{{ icon("chevron-left", "size-4") }} {{ t("pagination.prev") }}</a>
+  {% else %}<span></span>{% endif %}
+  <span class="text-sm text-stone-600 dark:text-stone-400" aria-current="page">{{ t("pagination.page", page=page.page, pages=page.pages) }}</span>
+  {% if page.has_next %}
+    <a class="btn-secondary" href="{{ url_with(seite=page.next_num) }}" rel="next">{{ t("pagination.next") }} {{ icon("chevron-right", "size-4") }}</a>
+  {% else %}<span></span>{% endif %}
+</nav>
+{% endif %}
+{%- endmacro %}
+
+{# Map that only loads OpenStreetMap after the visitor agrees (no IP sent to OSM before). #}
+{% macro map_box(markers_json, height="h-72") -%}
+<div class="relative isolate {{ height }} overflow-hidden rounded-2xl border border-stone-200 bg-stone-100 dark:border-stone-800 dark:bg-stone-900"
+     data-map="{{ markers_json|forceescape }}"
+     data-leaflet-js="{{ asset('vendor/leaflet/leaflet.js') }}"
+     data-leaflet-css="{{ asset('vendor/leaflet/leaflet.css') }}"
+     data-attribution="{{ t('map.attribution') }}">
+  <div data-map-consent class="absolute inset-0 flex flex-col items-center justify-center gap-3 p-6 text-center">
+    {{ icon("map", "size-10 text-stone-400") }}
+    <p class="font-semibold">{{ t("map.consent_title") }}</p>
+    <p class="max-w-sm text-sm text-stone-600 dark:text-stone-400">{{ t("map.consent_text") }}
+      <a class="link" href="{{ url_for('public.legal', page='datenschutz') }}">{{ t("footer.privacy") }}</a></p>
+    <button type="button" class="btn-primary" data-map-load>{{ t("map.consent_button") }}</button>
+    <label class="flex items-center gap-2 text-sm text-stone-600 dark:text-stone-400">
+      <input type="checkbox" data-map-remember class="size-4 accent-gold-500"> {{ t("map.consent_remember") }}
+    </label>
+  </div>
+</div>
+{%- endmacro %}

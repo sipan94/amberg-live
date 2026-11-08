@@ -1,0 +1,91 @@
+/* Source for app/static/css/app.css. Build: npm run build:css (or watch:css while developing) */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+    scroll-padding-top: 5rem;
+  }
+  body {
+    @apply bg-stone-50 text-stone-900 antialiased dark:bg-stone-950 dark:text-stone-100;
+  }
+  :focus-visible {
+    @apply outline outline-2 outline-offset-2 outline-gold-500;
+  }
+  a {
+    @apply underline-offset-2;
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-6xl px-4 sm:px-6;
+  }
+  .card {
+    @apply overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm dark:border-stone-800 dark:bg-stone-900;
+  }
+  .card-link {
+    @apply transition hover:-translate-y-0.5 hover:shadow-md motion-reduce:transition-none motion-reduce:hover:translate-y-0;
+  }
+  .btn {
+    @apply inline-flex min-h-[2.75rem] items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold no-underline transition disabled:opacity-50;
+  }
+  /* City colors: black text on flag gold (~12:1 contrast). White on gold would fail WCAG AA. */
+  .btn-primary {
+    @apply btn bg-gold-400 text-stone-950 hover:bg-gold-300;
+  }
+  .btn-secondary {
+    @apply btn border border-stone-300 bg-white text-stone-800 hover:bg-stone-100 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100 dark:hover:bg-stone-800;
+  }
+  .chip {
+    @apply inline-flex min-h-[2.5rem] shrink-0 items-center gap-1.5 rounded-full border border-stone-300 bg-white px-3.5 text-sm font-medium text-stone-700 no-underline hover:border-gold-400 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-200;
+  }
+  .chip-active {
+    @apply border-gold-400 bg-gold-100 text-stone-950 dark:bg-gold-400/20 dark:text-gold-100;
+  }
+  .input {
+    @apply min-h-[2.75rem] w-full rounded-xl border border-stone-300 bg-white px-3 py-2 text-base text-stone-900 placeholder:text-stone-400 focus:border-gold-500 focus:outline-none focus:ring-2 focus:ring-gold-400/40 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100;
+  }
+  .label {
+    @apply mb-1 block text-sm font-medium text-stone-700 dark:text-stone-300;
+  }
+  .link {
+    @apply font-medium text-gold-800 underline hover:text-gold-900 dark:text-gold-300 dark:hover:text-gold-200;
+  }
+  .section-title {
+    @apply text-xl font-bold tracking-tight sm:text-2xl;
+  }
+  .badge {
+    @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold;
+  }
+  .badge-featured {
+    @apply badge bg-gold-400 text-stone-950;
+  }
+  .badge-premium {
+    @apply badge bg-stone-900 text-gold-300 dark:bg-gold-300 dark:text-stone-950;
+  }
+  .badge-muted {
+    @apply badge bg-stone-100 text-stone-700 dark:bg-stone-800 dark:text-stone-300;
+  }
+  .scroll-row {
+    @apply -mx-4 flex gap-2 overflow-x-auto px-4 pb-2 sm:mx-0 sm:flex-wrap sm:px-0;
+    scrollbar-width: none;
+  }
+  /* Formatting for user-written descriptions (sanitized HTML) */
+  .prose-text p { @apply mb-3 leading-relaxed; }
+  .prose-text ul { @apply mb-3 list-disc pl-5; }
+  .prose-text ol { @apply mb-3 list-decimal pl-5; }
+  .prose-text a { @apply link; }
+}
+
+/* Leaflet popups in dark mode */
+.dark .leaflet-popup-content-wrapper,
+.dark .leaflet-popup-tip {
+  background: #1c1917;
+  color: #f5f5f4;
+}
+.dark .leaflet-popup-content-wrapper a {
+  color: #fcd34d;
+}

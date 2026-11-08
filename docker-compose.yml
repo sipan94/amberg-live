@@ -1,0 +1,16 @@
+# docker compose up -d --build
+# Needs a .env file (see .env.example) with APP_ENV=production and a strong SECRET_KEY.
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      PROXY_COUNT: "1"
+    volumes:
+      - amberg_data:/app/instance
+    ports:
+      - "127.0.0.1:8000:8000"   # only reachable from the host's reverse proxy
+
+volumes:
+  amberg_data:

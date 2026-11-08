@@ -1,0 +1,10 @@
+Hallo,
+
+du hast ein neues Passwort für {{ site_name }} angefordert. Mit diesem Link kannst du es festlegen:
+
+{{ link }}
+
+Der Link ist eine Stunde gültig und funktioniert nur einmal. Falls du nichts angefordert hast, ignoriere diese E-Mail einfach – dein Passwort bleibt unverändert.
+
+Viele Grüße
+{{ site_name }}

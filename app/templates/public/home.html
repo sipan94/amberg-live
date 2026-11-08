@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% from "macros/icons.html" import icon %}
+{% from "macros/ui.html" import event_card, event_row, offer_card with context %}
+
+{% macro section_header(title, link, link_label) -%}
+<div class="mb-4 flex items-end justify-between gap-4">
+  <h2 class="section-title">{{ title }}</h2>
+  {% if link %}<a class="link shrink-0 text-sm" href="{{ link }}">{{ link_label }}</a>{% endif %}
+</div>
+{%- endmacro %}
+
+{% block head %}
+  <script type="application/ld+json">{{ seo.website_jsonld()|tojson }}</script>
+{% endblock %}
+
+{% block content %}
+<section class="border-b border-stone-200 bg-gradient-to-b from-gold-100 to-stone-50 py-10 sm:py-14 dark:border-stone-800 dark:from-gold-950/40 dark:to-stone-950">
+  <div class="container-page">
+    <h1 class="text-3xl font-extrabold tracking-tight sm:text-4xl">{{ t("home.hero_title") }}</h1>
+    <p class="mt-2 max-w-xl text-stone-700 dark:text-stone-300">{{ t("home.hero_text") }}</p>
+    <form action="{{ url_for('public.events') }}" method="get" role="search" class="mt-6 flex max-w-xl gap-2">
+      <label for="home-q" class="sr-only">{{ t("nav.search") }}</label>
+      <input id="home-q" name="q" type="search" class="input" placeholder="{{ t('home.search_placeholder') }}">
+      <button class="btn-primary shrink-0" type="submit">{{ icon("search", "size-4") }}<span class="sr-only sm:not-sr-only">{{ t("nav.search") }}</span></button>
+    </form>
+    <div class="mt-6">
+      <h2 class="sr-only">{{ t("home.categories") }}</h2>
+      <div class="scroll-row">
+        {% for cat in nav_categories() %}
+          <a class="chip" href="{{ url_for('public.events', kategorie=cat.slug) }}">
+            <span class="size-2.5 rounded-full" style="background: {{ cat.color }}"></span>{{ cat.name }}
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="container-page space-y-12 py-10">
+  <section aria-labelledby="h-today">
+    <div class="mb-4 flex items-end justify-between gap-4">
+      <h2 id="h-today" class="section-title">{{ t("home.today") }} <span class="text-base font-medium text-stone-500 dark:text-stone-400">{{ now|date_short }}</span></h2>
+      <a class="link shrink-0 text-sm" href="{{ url_for('public.events', zeitraum='heute') }}">{{ t("home.show_all") }}</a>
+    </div>
+    {% if today %}
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {% for occ in today[:6] %}{{ event_card(occ) }}{% endfor %}
+      </div>
+    {% else %}
+      <p class="rounded-2xl border border-dashed border-stone-300 p-6 text-center text-stone-600 dark:border-stone-700 dark:text-stone-400">{{ t("home.nothing_today") }}</p>
+    {% endif %}
+  </section>
+
+  <section aria-labelledby="h-weekend">
+    <div class="mb-4 flex items-end justify-between gap-4">
+      <h2 id="h-weekend" class="section-title">{{ t(weekend_label) }}</h2>
+      <a class="link shrink-0 text-sm" href="{{ url_for('public.events', zeitraum='wochenende') }}">{{ t("home.show_all") }}</a>
+    </div>
+    {% if weekend %}
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {% for occ in weekend[:6] %}{{ event_card(occ) }}{% endfor %}
+      </div>
+    {% else %}
+      <p class="rounded-2xl border border-dashed border-stone-300 p-6 text-center text-stone-600 dark:border-stone-700 dark:text-stone-400">{{ t("home.nothing_weekend") }}</p>
+    {% endif %}
+  </section>
+
+  {% if upcoming %}
+  <section aria-labelledby="h-upcoming">
+    <div class="mb-4 flex items-end justify-between gap-4">
+      <h2 id="h-upcoming" class="section-title">{{ t("home.upcoming") }}</h2>
+      <a class="link shrink-0 text-sm" href="{{ url_for('public.events') }}">{{ t("home.show_all") }}</a>
+    </div>
+    <div class="grid gap-3 lg:grid-cols-2">
+      {% for occ in upcoming %}{{ event_row(occ, show_day=True) }}{% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if offers %}
+  <section aria-labelledby="h-offers">
+    <div class="mb-4 flex items-end justify-between gap-4">
+      <h2 id="h-offers" class="section-title">{{ t("home.offers") }}</h2>
+      <a class="link shrink-0 text-sm" href="{{ url_for('public.offers') }}">{{ t("home.show_all") }}</a>
+    </div>
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {% for offer in offers %}{{ offer_card(offer) }}{% endfor %}
+    </div>
+  </section>
+  {% endif %}
+</div>
+{% endblock %}

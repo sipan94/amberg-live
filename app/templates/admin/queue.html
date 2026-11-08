@@ -1,0 +1,79 @@
+{% extends "admin/_layout.html" %}
+{% from "macros/icons.html" import icon %}
+
+{% block admin_content %}
+<h1 class="text-2xl font-extrabold tracking-tight">{{ t("admin.nav_queue") }}</h1>
+
+<div class="scroll-row mt-4" role="tablist">
+  {% for key, label in [("veranstaltung", t("admin.nav_events")), ("angebot", t("admin.nav_offers")), ("profil", t("admin.nav_orgs"))] %}
+    <a href="{{ url_for('admin.queue', typ=key) }}" role="tab" aria-selected="{{ 'true' if kind == key else 'false' }}" class="chip {% if kind == key %}chip-active{% endif %}">
+      {{ label }} <span class="font-bold">{{ pending_counts[key] }}</span>
+    </a>
+  {% endfor %}
+</div>
+
+{% if not items %}
+  <p class="mt-6 rounded-2xl border border-dashed border-stone-300 p-8 text-center text-stone-600 dark:border-stone-700 dark:text-stone-400">{{ t("admin.queue_empty") }}</p>
+{% endif %}
+
+<div class="mt-6 space-y-6">
+{% for item in items %}
+  {% set is_org = kind == "profil" %}
+  {% set org = item if is_org else item.organization %}
+  {% set image = item.logo if is_org else item.image %}
+  {% set public_url = url_for('public.organization_detail' if is_org else ('public.event_detail' if kind == 'veranstaltung' else 'public.offer_detail'), slug=item.slug) %}
+  <article class="card overflow-visible p-5" aria-labelledby="item-{{ item.id }}">
+    <div class="flex flex-wrap gap-4">
+      {% if image %}<img src="{{ upload_url(image, small=True) }}" alt="" class="h-24 w-36 shrink-0 rounded-xl object-cover">{% endif %}
+      <div class="min-w-0 flex-1">
+        <h2 id="item-{{ item.id }}" class="text-lg font-bold">{{ item.name if is_org else item.title }}</h2>
+        <p class="text-sm text-stone-600 dark:text-stone-400">
+          {% if not is_org %}{{ org.name }} {% if not org.is_approved %}<span class="badge-muted">{{ t("admin.org_status_" ~ org.status) }}</span>{% endif %} · {% endif %}
+          {{ org.owner.email }} · {{ t("admin.submitted") }} {{ item.updated_at.strftime("%d.%m.%Y %H:%M") }}
+          {% if (item.updated_at - item.created_at).total_seconds() > 60 %}· <strong>{{ t("admin.changed") }}</strong>{% endif %}
+        </p>
+        <dl class="mt-2 grid gap-x-6 gap-y-1 text-sm sm:grid-cols-2">
+          {% if kind == "veranstaltung" %}
+            <div><dt class="inline text-stone-500">{{ t("events.when") }}:</dt> <dd class="inline">{{ item.start_at|when(item.end_at) }}{% if item.is_recurring %} ({{ t("events.weekly") if item.recurrence == "weekly" else t("events.monthly") }}){% endif %}</dd></div>
+            <div><dt class="inline text-stone-500">{{ t("events.location") }}:</dt> <dd class="inline">{{ item.location_name }}{% if item.address %}, {{ item.address }}{% endif %}</dd></div>
+            <div><dt class="inline text-stone-500">{{ t("events.category") }}:</dt> <dd class="inline">{{ item.category.name if item.category else "–" }}</dd></div>
+            <div><dt class="inline text-stone-500">{{ t("events.price_label") }}:</dt> <dd class="inline">{{ item|price }}</dd></div>
+          {% elif kind == "angebot" %}
+            <div><dt class="inline text-stone-500">{{ t("form.valid_from") }}:</dt> <dd class="inline">{{ item.valid_from|date_numeric }}{% if item.valid_until %} – {{ item.valid_until|date_numeric }}{% endif %}</dd></div>
+          {% else %}
+            <div><dt class="inline text-stone-500">{{ t("form.org_type") }}:</dt> <dd class="inline">{{ t("badges.club") if item.is_club else t("badges.business") }}</dd></div>
+            <div><dt class="inline text-stone-500">{{ t("form.address") }}:</dt> <dd class="inline">{{ item.address or "–" }}</dd></div>
+            {% if item.website %}<div><dt class="inline text-stone-500">{{ t("form.website") }}:</dt> <dd class="inline break-all">{{ item.website }}</dd></div>{% endif %}
+          {% endif %}
+        </dl>
+      </div>
+    </div>
+    <div class="prose-text mt-3 max-h-48 overflow-auto rounded-xl bg-stone-50 p-3 text-sm dark:bg-stone-950">{{ item.description|rich }}</div>
+
+    <div class="mt-4 flex flex-wrap items-start gap-2">
+      <form method="post" action="{{ url_for('admin.approve', kind=kind, item_id=item.id) }}">
+        {{ action_form.csrf_token }}
+        <button type="submit" class="btn bg-emerald-600 text-white hover:bg-emerald-700">✓ {{ t("admin.approve") }}</button>
+      </form>
+      <a class="btn-secondary" href="{{ public_url }}" target="_blank">{{ t("admin.preview") }} {{ icon("external", "size-4") }}</a>
+      <a class="btn-secondary" href="{{ url_for('admin.edit', kind=kind, item_id=item.id) }}">{{ t("dashboard.edit") }}</a>
+      <details class="w-full sm:w-auto sm:flex-1">
+        <summary class="btn cursor-pointer list-none border border-rose-300 text-rose-800 hover:bg-rose-50 dark:border-rose-800 dark:text-rose-300 dark:hover:bg-rose-950/40">✕ {{ t("admin.reject") }}</summary>
+        <form method="post" action="{{ url_for('admin.reject', kind=kind, item_id=item.id) }}" class="mt-3 space-y-2 rounded-xl border border-stone-200 p-3 dark:border-stone-800">
+          {{ reject_form.csrf_token }}
+          <label class="label" for="reason-{{ item.id }}">{{ t("admin.reason_label") }}</label>
+          <div class="flex flex-wrap gap-1">
+            {% for preset in presets %}
+              <button type="button" class="chip min-h-8 text-xs" data-reason-target="reason-{{ item.id }}" data-reason="{{ t('admin.preset_' ~ preset) }}">{{ t("admin.preset_" ~ preset) }}</button>
+            {% endfor %}
+          </div>
+          <textarea id="reason-{{ item.id }}" name="reason" rows="3" required minlength="5" maxlength="500" class="input"></textarea>
+          <p class="text-xs text-stone-500">{{ t("admin.reason_hint") }}</p>
+          <button type="submit" class="btn bg-rose-700 text-white hover:bg-rose-800">{{ t("admin.reject_send") }}</button>
+        </form>
+      </details>
+    </div>
+  </article>
+{% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% from "macros/icons.html" import icon %}
+{% from "macros/ui.html" import event_row, offer_card, map_box with context %}
+{% set today_key = ["mo", "di", "mi", "do", "fr", "sa", "so"][today.weekday()] %}
+
+{% block title %}{{ org.name }} – {{ t("badges.club") if org.is_club else t("badges.business") }} in Amberg – {{ site_name }}{% endblock %}
+{% block meta_description %}{{ org.description|plain(155) }}{% endblock %}
+{% block og_image %}{{ site_url }}{{ upload_url(org.cover_image or org.logo) if (org.cover_image or org.logo) else asset('img/og-default.png') }}{% endblock %}
+{% block head %}
+  <script type="application/ld+json">{{ seo.organization_jsonld(org)|tojson }}</script>
+{% endblock %}
+
+{% block content %}
+<div class="relative h-40 bg-gradient-to-br sm:h-56 {% if org.is_club %}from-teal-200 to-teal-500 dark:from-teal-900 dark:to-teal-700{% else %}from-gold-200 to-gold-500 dark:from-gold-900 dark:to-gold-700{% endif %}">
+  {% if org.cover_image %}<img src="{{ upload_url(org.cover_image) }}" alt="" class="size-full object-cover">{% endif %}
+</div>
+
+<div class="container-page">
+  <div class="-mt-12 flex items-end gap-4">
+    <div class="size-24 shrink-0 overflow-hidden rounded-2xl border-4 border-stone-50 bg-white shadow dark:border-stone-950 dark:bg-stone-900">
+      {% if org.logo %}
+        <img src="{{ upload_url(org.logo) }}" alt="{{ t('orgs.logo_alt', name=org.name) }}" class="size-full object-cover">
+      {% else %}
+        <div class="flex size-full items-center justify-center text-4xl font-extrabold text-stone-700 dark:text-stone-200" aria-hidden="true">{{ org.name[0] }}</div>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if not org.is_public %}
+    <p class="mt-4 rounded-xl bg-stone-200 p-3 text-sm font-semibold dark:bg-stone-800">Vorschau – Status: {{ org.status }}</p>
+  {% endif %}
+
+  <div class="mt-4 flex flex-wrap gap-1">
+    <span class="badge-muted">{{ t("badges.club") if org.is_club else t("badges.business") }}</span>
+    {% if org.is_premium %}<span class="badge-premium">{{ t("badges.premium") }}</span>{% endif %}
+  </div>
+  <h1 class="mt-2 text-2xl font-extrabold tracking-tight sm:text-3xl">{{ org.name }}</h1>
+
+  <div class="mt-6 grid gap-8 lg:grid-cols-[1fr_22rem]">
+    <div class="min-w-0">
+      <div class="prose-text max-w-prose text-stone-800 dark:text-stone-200">{{ org.description|rich }}</div>
+
+      <section class="mt-10" aria-labelledby="h-events">
+        <h2 id="h-events" class="section-title mb-4">{{ t("orgs.upcoming_events") }}</h2>
+        {% if events %}
+          <div class="grid gap-3">{% for occ in events %}{{ event_row(occ, show_day=True) }}{% endfor %}</div>
+        {% else %}
+          <p class="text-stone-600 dark:text-stone-400">{{ t("orgs.no_events") }}</p>
+        {% endif %}
+      </section>
+
+      {% if offers %}
+      <section class="mt-10" aria-labelledby="h-offers">
+        <h2 id="h-offers" class="section-title mb-4">{{ t("orgs.current_offers") }}</h2>
+        <div class="grid gap-4 sm:grid-cols-2">{% for offer in offers %}{{ offer_card(offer) }}{% endfor %}</div>
+      </section>
+      {% endif %}
+    </div>
+
+    <aside class="space-y-4">
+      <div class="card p-4">
+        <h2 class="mb-3 font-bold">{{ t("orgs.contact") }}</h2>
+        <ul class="space-y-3 text-sm">
+          {% if org.address %}<li class="flex gap-2">{{ icon("pin", "size-4 mt-0.5 shrink-0 text-stone-500") }}<span>{{ org.address }}</span></li>{% endif %}
+          {% if org.phone %}<li class="flex gap-2">{{ icon("phone", "size-4 mt-0.5 shrink-0 text-stone-500") }}<a class="link" href="tel:{{ org.phone|replace(' ', '') }}">{{ org.phone }}</a></li>{% endif %}
+          {% if org.email %}<li class="flex gap-2">{{ icon("mail", "size-4 mt-0.5 shrink-0 text-stone-500") }}<a class="link break-all" href="mailto:{{ org.email }}">{{ org.email }}</a></li>{% endif %}
+          {% if org.website %}<li class="flex gap-2">{{ icon("globe", "size-4 mt-0.5 shrink-0 text-stone-500") }}<a class="link break-all" href="{{ org.website }}" target="_blank" rel="noopener noreferrer nofollow">{{ org.website|replace("https://", "")|replace("http://", "") }}</a></li>{% endif %}
+        </ul>
+      </div>
+
+      {% if hours %}
+      <div class="card p-4">
+        <h2 class="mb-3 font-bold">{{ t("orgs.opening_hours") }}</h2>
+        <dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-sm">
+          {% for key, value in hours %}
+            <dt class="{% if key == today_key %}font-bold{% else %}text-stone-600 dark:text-stone-400{% endif %}">{{ t("dates.weekday_keys")[key] }}</dt>
+            <dd class="{% if key == today_key %}font-bold{% endif %}">{{ value }}</dd>
+          {% endfor %}
+        </dl>
+      </div>
+      {% endif %}
+
+      {% if org.lat is not none %}
+        {{ map_box([{"lat": org.lat, "lng": org.lng, "title": org.name, "color": "#b38600"}]|tojson) }}
+      {% endif %}
+    </aside>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}<script src="{{ asset('js/map.js') }}" defer></script>{% endblock %}

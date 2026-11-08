@@ -1,0 +1,71 @@
+{% extends "admin/_layout.html" %}
+{% from "macros/forms.html" import status_badge %}
+{% from "macros/ui.html" import pagination with context %}
+{% set titles = {"veranstaltung": t("admin.nav_events"), "angebot": t("admin.nav_offers"), "profil": t("admin.nav_orgs")} %}
+
+{% block admin_content %}
+<h1 class="text-2xl font-extrabold tracking-tight">{{ titles[kind] }}</h1>
+
+<form method="get" class="mt-4 flex flex-wrap gap-2" role="search">
+  <label class="sr-only" for="a-q">{{ t("nav.search") }}</label>
+  <input id="a-q" type="search" name="q" value="{{ q }}" class="input max-w-xs" placeholder="{{ t('nav.search') }} …">
+  <label class="sr-only" for="a-status">Status</label>
+  <select id="a-status" name="status" class="input w-auto">
+    <option value="">{{ t("admin.all_status") }}</option>
+    {% for s in ["pending", "approved", "rejected"] %}<option value="{{ s }}" {% if status == s %}selected{% endif %}>{{ t("status." ~ s) }}</option>{% endfor %}
+  </select>
+  <button class="btn-primary" type="submit">{{ t("events.apply") }}</button>
+</form>
+<p class="mt-3 text-sm text-stone-600 dark:text-stone-400">{{ t("admin.total", count=page.total) }}</p>
+
+<ul class="mt-3 divide-y divide-stone-200 rounded-2xl border border-stone-200 bg-white dark:divide-stone-800 dark:border-stone-800 dark:bg-stone-900">
+{% for item in page.items %}
+  {% set is_org = kind == "profil" %}
+  <li class="flex flex-wrap items-center gap-3 p-4">
+    <div class="min-w-0 flex-1">
+      <div class="flex flex-wrap items-center gap-2">
+        <a class="font-semibold hover:underline" href="{{ url_for('admin.edit', kind=kind, item_id=item.id) }}">{{ item.name if is_org else item.title }}</a>
+        {{ status_badge(item.status) }}
+        {% if not is_org and item.is_featured %}<span class="badge-featured">{{ t("badges.featured") }}</span>{% endif %}
+        {% if is_org and item.is_premium %}<span class="badge-premium">{{ t("badges.premium") }}{% if item.premium_until %} {{ t("admin.until", date=item.premium_until|date_numeric) }}{% endif %}</span>{% endif %}
+      </div>
+      <p class="mt-0.5 text-sm text-stone-600 dark:text-stone-400">
+        {% if kind == "veranstaltung" %}{{ item.start_at|date_numeric }} {{ item.start_at.strftime("%H:%M") }} · {{ item.organization.name }} · {{ t("dashboard.views", count=item.view_count) }}
+        {% elif kind == "angebot" %}{{ item.valid_from|date_numeric }}{% if item.valid_until %} – {{ item.valid_until|date_numeric }}{% endif %} · {{ item.organization.name }} · {{ t("dashboard.views", count=item.view_count) }}
+        {% else %}{{ t("badges.club") if item.is_club else t("badges.business") }} · {{ item.owner.email }} · {{ item.events|length }} {{ t("admin.nav_events") }}{% endif %}
+      </p>
+      {% if item.is_rejected and item.rejection_reason %}<p class="text-sm text-rose-800 dark:text-rose-300">{{ t("dashboard.reason") }}: {{ item.rejection_reason }}</p>{% endif %}
+    </div>
+    <div class="flex flex-wrap items-center gap-1">
+      {% if item.is_pending %}
+        <form method="post" action="{{ url_for('admin.approve', kind=kind, item_id=item.id) }}">{{ action_form.csrf_token }}
+          <button class="btn min-h-10 bg-emerald-600 px-3 text-white hover:bg-emerald-700" type="submit">{{ t("admin.approve") }}</button></form>
+      {% endif %}
+      {% if not is_org %}
+        <form method="post" action="{{ url_for('admin.toggle_featured', kind=kind, item_id=item.id) }}">{{ action_form.csrf_token }}
+          <button class="btn-secondary min-h-10 px-3" type="submit" aria-pressed="{{ 'true' if item.is_featured else 'false' }}">★ {{ t("admin.unfeature") if item.is_featured else t("admin.feature") }}</button></form>
+      {% else %}
+        <details class="relative">
+          <summary class="btn-secondary min-h-10 cursor-pointer list-none px-3">{{ t("badges.premium") }}</summary>
+          <form method="post" action="{{ url_for('admin.premium', item_id=item.id) }}" class="absolute right-0 z-20 mt-1 w-64 space-y-2 rounded-xl border border-stone-200 bg-white p-3 shadow-lg dark:border-stone-700 dark:bg-stone-900">
+            {{ premium_form.csrf_token }}
+            <label class="label" for="until-{{ item.id }}">{{ t("admin.premium_until") }}</label>
+            <input id="until-{{ item.id }}" type="date" name="until" class="input" min="{{ now.date().isoformat() }}" value="{{ item.premium_until.date().isoformat() if item.premium_until else '' }}">
+            <div class="flex gap-2">
+              <button class="btn-primary min-h-10 px-3" type="submit" name="action" value="on">{{ t("admin.premium_on") }}</button>
+              {% if item.is_premium %}<button class="btn-secondary min-h-10 px-3" type="submit" name="action" value="off">{{ t("admin.premium_off") }}</button>{% endif %}
+            </div>
+          </form>
+        </details>
+      {% endif %}
+      <a class="btn-secondary min-h-10 px-3" href="{{ url_for('admin.edit', kind=kind, item_id=item.id) }}">{{ t("dashboard.edit") }}</a>
+      <form method="post" action="{{ url_for('admin.delete', kind=kind, item_id=item.id) }}" data-confirm="{{ t('admin.delete_confirm_org') if is_org else t('dashboard.delete_confirm') }}">{{ action_form.csrf_token }}
+        <button class="btn min-h-10 px-3 text-rose-700 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-950/40" type="submit">{{ t("dashboard.delete") }}</button></form>
+    </div>
+  </li>
+{% else %}
+  <li class="p-6 text-center text-stone-600 dark:text-stone-400">{{ t("admin.nothing_found") }}</li>
+{% endfor %}
+</ul>
+{{ pagination(page) }}
+{% endblock %}

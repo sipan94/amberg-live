@@ -1,0 +1,11 @@
+Hallo,
+
+jemand (vermutlich du) wollte sich gerade mit dieser E-Mail-Adresse bei {{ site_name }} registrieren. Für diese Adresse gibt es aber schon ein Konto.
+
+Anmelden: {{ login_url }}
+Passwort vergessen? {{ reset_url }}
+
+Falls du das nicht warst, musst du nichts tun – dein Konto bleibt unverändert.
+
+Viele Grüße
+{{ site_name }}

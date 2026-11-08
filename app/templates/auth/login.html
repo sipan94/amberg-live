@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% from "macros/forms.html" import field %}
+{% block title %}{{ t("auth.login_title") }} – {{ site_name }}{% endblock %}
+
+{% block content %}
+<div class="container-page max-w-md py-10">
+  <h1 class="text-2xl font-extrabold tracking-tight">{{ t("auth.login_title") }}</h1>
+  <p class="mt-1 text-stone-600 dark:text-stone-400">{{ t("auth.login_intro") }}</p>
+
+  <form method="post" novalidate class="card mt-6 space-y-4 p-5">
+    {{ form.csrf_token }}
+    {{ field(form.email, t("auth.email"), attrs={"autocomplete": "email", "autofocus": True}) }}
+    {{ field(form.password, t("auth.password"), attrs={"autocomplete": "current-password"}) }}
+    <button type="submit" class="btn-primary w-full">{{ t("auth.login_button") }}</button>
+    <p class="text-center text-sm"><a class="link" href="{{ url_for('auth.forgot_password') }}">{{ t("auth.forgot_link") }}</a></p>
+  </form>
+
+  <p class="mt-6 text-center text-sm text-stone-600 dark:text-stone-400">
+    {{ t("auth.no_account") }} <a class="link" href="{{ url_for('auth.register') }}">{{ t("auth.register_link") }}</a>
+  </p>
+</div>
+{% endblock %}

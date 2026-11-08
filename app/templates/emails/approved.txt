@@ -1,0 +1,10 @@
+Hallo,
+
+gute Nachricht: „{{ label }}“ wurde geprüft und ist jetzt auf {{ site_name }} veröffentlicht.
+
+{{ url }}
+
+Teile den Link gern mit deinen Gästen und Mitgliedern!
+
+Viele Grüße
+{{ site_name }}

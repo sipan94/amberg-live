@@ -1,0 +1,12 @@
+Hallo,
+
+danke für deinen Eintrag „{{ label }}“. Leider können wir ihn so noch nicht veröffentlichen.
+
+Grund:
+{{ reason }}
+
+Du kannst den Eintrag in deinem Konto bearbeiten und erneut einreichen:
+{{ dashboard_url }}
+
+Viele Grüße
+{{ site_name }}

@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% from "macros/icons.html" import icon %}
+{% from "macros/ui.html" import fav_button, highlight_badges, placeholder, map_box, event_row with context %}
+{% set ev = event %}
+{% set page_url = url_for("public.event_detail", slug=ev.slug, _external=True) %}
+
+{% block title %}{{ ev.title }} – {{ next_start|date_short }} – {{ site_name }}{% endblock %}
+{% block meta_description %}{{ ev.description|plain(155) or t("site.description") }}{% endblock %}
+{% block og_image %}{{ site_url }}{{ upload_url(ev.image) if ev.image else asset('img/og-default.png') }}{% endblock %}
+{% block head %}
+  <script type="application/ld+json">{{ seo.event_jsonld(ev, next_start, next_end)|tojson }}</script>
+{% endblock %}
+
+{% block content %}
+<article class="container-page py-6">
+  <a href="{{ url_for('public.events') }}" class="link mb-4 inline-flex items-center gap-1 text-sm">{{ icon("arrow-left", "size-4") }} {{ t("events.back") }}</a>
+
+  {% if not ev.is_public %}
+    <p class="mb-4 rounded-xl bg-stone-200 p-3 text-sm font-semibold dark:bg-stone-800">Vorschau – Status: {{ ev.status }}</p>
+  {% endif %}
+  {% if is_past %}
+    <p class="mb-4 rounded-xl border border-stone-300 bg-stone-100 p-3 text-sm font-semibold text-stone-700 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-300" role="note">{{ t("events.past_notice") }}</p>
+  {% endif %}
+
+  <div class="grid gap-8 lg:grid-cols-[1fr_22rem]">
+    <div class="min-w-0">
+      <div class="relative aspect-[16/9] overflow-hidden rounded-2xl bg-stone-100 dark:bg-stone-800">
+        {% if ev.image %}
+          <img src="{{ upload_url(ev.image) }}" alt="{{ t('events.image_alt', title=ev.title) }}" class="size-full object-cover">
+        {% else %}
+          {{ placeholder(ev.category) }}
+        {% endif %}
+        <div class="absolute bottom-3 left-3 flex gap-1">{{ highlight_badges(ev) }}</div>
+      </div>
+
+      <div class="mt-5 flex items-start gap-3">
+        <div class="min-w-0 flex-1">
+          {% if ev.category %}
+            <a href="{{ url_for('public.events', kategorie=ev.category.slug) }}" class="chip mb-2 min-h-8 text-xs">
+              <span class="size-2 rounded-full" style="background: {{ ev.category.color }}"></span>{{ ev.category.name }}
+            </a>
+          {% endif %}
+          <h1 class="text-2xl font-extrabold leading-tight tracking-tight sm:text-3xl">{{ ev.title }}</h1>
+        </div>
+        {{ fav_button(ev.slug, "!bg-stone-100 dark:!bg-stone-800") }}
+      </div>
+
+      <div class="prose-text mt-5 max-w-prose text-stone-800 dark:text-stone-200">{{ ev.description|rich }}</div>
+
+      {% if dates|length > 1 %}
+      <section class="mt-8" aria-labelledby="h-dates">
+        <h2 id="h-dates" class="mb-3 text-lg font-bold">{{ t("events.next_dates") }}</h2>
+        <ul class="divide-y divide-stone-200 rounded-2xl border border-stone-200 bg-white dark:divide-stone-800 dark:border-stone-800 dark:bg-stone-900">
+          {% for start, end in dates %}
+            <li class="flex items-center gap-3 px-4 py-3 text-sm">{{ icon("calendar", "size-4 text-stone-500") }} {{ start|date_long }}, {{ t("dates.time", time=start.strftime("%H:%M")) }}</li>
+          {% endfor %}
+        </ul>
+      </section>
+      {% endif %}
+    </div>
+
+    <aside class="space-y-4">
+      <div class="card divide-y divide-stone-200 dark:divide-stone-800">
+        <div class="flex gap-3 p-4">
+          {{ icon("clock", "size-5 mt-0.5 shrink-0 text-gold-700 dark:text-gold-300") }}
+          <div>
+            <p class="text-xs font-semibold uppercase text-stone-500 dark:text-stone-400">{{ t("events.when") }}</p>
+            <p class="font-semibold">{{ next_start|date_long }}</p>
+            <p class="text-sm text-stone-700 dark:text-stone-300">{{ next_start|when(next_end) }}</p>
+            {% if ev.is_recurring %}
+              <p class="mt-1 flex items-center gap-1 text-sm text-stone-600 dark:text-stone-400">{{ icon("repeat", "size-4") }}
+                {{ t("events.weekly") if ev.recurrence == "weekly" else t("events.monthly") }}{% if ev.recurrence_until %}, {{ t("events.recurring_until", date=ev.recurrence_until|date_numeric) }}{% endif %}</p>
+            {% endif %}
+          </div>
+        </div>
+        {% if ev.location_name or ev.address %}
+        <div class="flex gap-3 p-4">
+          {{ icon("pin", "size-5 mt-0.5 shrink-0 text-gold-700 dark:text-gold-300") }}
+          <div>
+            <p class="text-xs font-semibold uppercase text-stone-500 dark:text-stone-400">{{ t("events.location") }}</p>
+            {% if ev.location_name %}<p class="font-semibold">{{ ev.location_name }}</p>{% endif %}
+            {% if ev.address %}<p class="text-sm text-stone-700 dark:text-stone-300">{{ ev.address }}</p>{% endif %}
+            {% if ev.lat is not none %}
+              <a class="link mt-1 inline-flex items-center gap-1 text-sm" target="_blank" rel="noopener noreferrer"
+                 href="https://www.openstreetmap.org/directions?to={{ ev.lat }}%2C{{ ev.lng }}">{{ t("events.route") }} {{ icon("external", "size-3.5") }}</a>
+            {% endif %}
+          </div>
+        </div>
+        {% endif %}
+        <div class="flex gap-3 p-4">
+          {{ icon("euro", "size-5 mt-0.5 shrink-0 text-gold-700 dark:text-gold-300") }}
+          <div>
+            <p class="text-xs font-semibold uppercase text-stone-500 dark:text-stone-400">{{ t("events.price_label") }}</p>
+            <p class="font-semibold">{{ ev|price }}</p>
+          </div>
+        </div>
+        <div class="flex gap-3 p-4">
+          {{ icon("store", "size-5 mt-0.5 shrink-0 text-gold-700 dark:text-gold-300") }}
+          <div>
+            <p class="text-xs font-semibold uppercase text-stone-500 dark:text-stone-400">{{ t("events.organizer") }}</p>
+            <a class="link font-semibold" href="{{ url_for('public.organization_detail', slug=ev.organization.slug) }}">{{ ev.organization.name }}</a>
+          </div>
+        </div>
+      </div>
+
+      {% if not is_past %}
+      <div class="grid gap-2">
+        <a class="btn-primary w-full" href="{{ url_for('public.event_ics', slug=ev.slug) }}" download>{{ icon("download", "size-4") }} {{ t("events.add_calendar") }}</a>
+        <div class="grid grid-cols-2 gap-2">
+          <a class="btn-secondary" target="_blank" rel="noopener noreferrer"
+             href="https://wa.me/?text={{ (ev.title ~ ' – ' ~ page_url)|urlencode }}">{{ icon("chat", "size-4") }} {{ t("events.share_whatsapp") }}</a>
+          <button type="button" class="btn-secondary" data-copy="{{ page_url }}" data-copied-label="{{ t('events.copied') }}">{{ icon("link", "size-4") }} <span>{{ t("events.copy_link") }}</span></button>
+        </div>
+        <button type="button" class="btn-secondary hidden w-full" data-share data-share-title="{{ ev.title }}" data-share-url="{{ page_url }}">{{ icon("share", "size-4") }} {{ t("events.share") }}</button>
+      </div>
+      {% endif %}
+
+      {% if ev.lat is not none %}
+        {{ map_box([{"lat": ev.lat, "lng": ev.lng, "title": ev.location_name or ev.title, "color": ev.category.color if ev.category else "#b38600"}]|tojson) }}
+      {% endif %}
+    </aside>
+  </div>
+
+  {% if more %}
+  <section class="mt-12" aria-labelledby="h-more">
+    <h2 id="h-more" class="section-title mb-4">{{ t("events.more_from", name=ev.organization.name) }}</h2>
+    <div class="grid gap-3 lg:grid-cols-3">{% for occ in more %}{{ event_row(occ, show_day=True) }}{% endfor %}</div>
+  </section>
+  {% endif %}
+</article>
+{% endblock %}
+
+{% block scripts %}<script src="{{ asset('js/map.js') }}" defer></script>{% endblock %}

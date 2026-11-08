@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% from "macros/forms.html" import field, checkbox, error_summary %}
+{% block title %}{{ t("auth.register_title") }} – {{ site_name }}{% endblock %}
+
+{% block content %}
+<div class="container-page max-w-md py-10">
+  <h1 class="text-2xl font-extrabold tracking-tight">{{ t("auth.register_title") }}</h1>
+  <p class="mt-1 text-stone-600 dark:text-stone-400">{{ t("auth.register_intro") }}</p>
+
+  <form method="post" novalidate class="card mt-6 space-y-4 p-5">
+    {{ form.csrf_token }}
+    {{ error_summary(form) }}
+    {{ field(form.email, t("auth.email"), required=True, attrs={"autocomplete": "email"}) }}
+    {{ field(form.password, t("auth.password"), help=t("auth.password_help"), required=True, attrs={"autocomplete": "new-password"}) }}
+    {{ field(form.password2, t("auth.password2"), required=True, attrs={"autocomplete": "new-password"}) }}
+    {{ checkbox(form.accept_terms, t("auth.accept_terms")) }}
+    <p class="-mt-2 pl-9 text-sm">
+      <a class="link" href="{{ url_for('public.legal', page='agb') }}" target="_blank">{{ t("footer.terms") }}</a> ·
+      <a class="link" href="{{ url_for('public.legal', page='datenschutz') }}" target="_blank">{{ t("footer.privacy") }}</a>
+    </p>
+    <button type="submit" class="btn-primary w-full">{{ t("auth.register_button") }}</button>
+  </form>
+
+  <p class="mt-6 text-center text-sm text-stone-600 dark:text-stone-400">
+    {{ t("auth.have_account") }} <a class="link" href="{{ url_for('auth.login') }}">{{ t("auth.login_button") }}</a>
+  </p>
+</div>
+{% endblock %}

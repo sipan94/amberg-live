@@ -1,0 +1,110 @@
+{% extends "legal/_layout.html" %}
+{% from "macros/legal.html" import todo %}
+
+{% block legal %}
+<p><strong>Kurz gesagt:</strong> Amberg Live verwendet keine Tracking-Cookies, keine Analyse-Dienste von Drittanbietern,
+keine Werbung und keine externen Schriftarten. Daten von Besucherinnen und Besuchern werden nur so weit verarbeitet,
+wie es für den Betrieb der Seite technisch nötig ist.</p>
+
+<h2>1. Verantwortlicher</h2>
+<p>
+  {{ todo("Name / Firma") }}<br>
+  {{ todo("Anschrift") }}<br>
+  E-Mail: {{ todo("E-Mail-Adresse für Datenschutzanfragen") }}
+</p>
+<p>Ein Datenschutzbeauftragter ist nicht benannt, da keine gesetzliche Pflicht besteht. {{ todo("prüfen und ggf. anpassen") }}</p>
+
+<h2>2. Hosting und Server-Protokolle</h2>
+<p>
+  Die Website wird bei {{ todo("Hoster, z. B. Hetzner Online GmbH, Industriestr. 25, 91710 Gunzenhausen") }} betrieben.
+  Mit dem Hoster besteht ein Vertrag zur Auftragsverarbeitung nach Art. 28 DSGVO.
+</p>
+<p>
+  Beim Aufruf jeder Seite verarbeitet der Webserver automatisch: IP-Adresse, Datum und Uhrzeit, aufgerufene Adresse,
+  übertragene Datenmenge, Browser-Kennung (User-Agent) und die zuvor besuchte Seite (Referrer). Das ist nötig, um die Seite
+  auszuliefern und Angriffe abzuwehren (Art. 6 Abs. 1 lit. f DSGVO – berechtigtes Interesse an einem sicheren Betrieb).
+  Fehlgeschlagene Anmeldeversuche werden zusätzlich mit IP-Adresse protokolliert, um Passwort-Angriffe zu erkennen.
+  Die Protokolle werden nach {{ todo("14") }} Tagen gelöscht.
+</p>
+
+<h2>3. Cookies</h2>
+<p>
+  Wir setzen nur ein einziges Cookie: <code>al_session</code>. Es entsteht erst, wenn du dich anmeldest oder ein Formular
+  (z. B. Registrierung) aufrufst, und dient dazu, dich angemeldet zu halten und Formulare vor Missbrauch (CSRF) zu schützen.
+  Es ist technisch notwendig (§ 25 Abs. 2 Nr. 2 TDDDG) und wird beim Abmelden bzw. spätestens nach 14 Tagen gelöscht.
+  Beim reinen Stöbern auf der Seite wird kein Cookie gesetzt. Deshalb gibt es auch kein Cookie-Banner.
+</p>
+
+<h2>4. Speicherung auf deinem Gerät (localStorage)</h2>
+<p>Einige Funktionen speichern Einstellungen nur in deinem Browser. Diese Daten verlassen dein Gerät nicht:</p>
+<ul>
+  <li><code>al-favs</code> – deine Merkliste. Um die Merkliste anzuzeigen, werden die gemerkten Einträge beim Server abgefragt, dort aber nicht gespeichert.</li>
+  <li><code>al-theme</code> – ob du den hellen oder dunklen Modus gewählt hast.</li>
+  <li><code>al-map-consent</code> – nur wenn du „Karten immer laden“ angehakt hast.</li>
+</ul>
+<p>Diese Speicherung erfolgt nur, weil du die jeweilige Funktion ausdrücklich nutzt (§ 25 Abs. 2 Nr. 2 TDDDG). Du kannst sie jederzeit über die Einstellungen deines Browsers („Websitedaten löschen“) entfernen.</p>
+
+<h2>5. Besucherstatistik</h2>
+<p>
+  Wir zählen, wie oft Seiten aufgerufen werden – als einfache Zahl pro Seite und Tag. Dabei werden weder IP-Adressen
+  noch Cookies noch sonstige Kennungen gespeichert; einzelne Besucher sind nicht unterscheidbar. Es gibt keine Profile
+  und keine Weitergabe an Dritte. Zugriffe von Suchmaschinen-Robotern werden nicht mitgezählt.
+</p>
+
+<h2>6. Karten (OpenStreetMap)</h2>
+<p>
+  Karten werden erst geladen, wenn du auf „Karte laden“ klickst. Dann ruft dein Browser Kartenbilder von der
+  OpenStreetMap Foundation (St John’s Innovation Centre, Cowley Road, Cambridge, CB4 0WS, Vereinigtes Königreich) ab;
+  dabei wird deine IP-Adresse an die OpenStreetMap Foundation übertragen. Rechtsgrundlage ist deine Einwilligung durch den Klick
+  (Art. 6 Abs. 1 lit. a DSGVO). Für das Vereinigte Königreich besteht ein Angemessenheitsbeschluss der EU-Kommission.
+  Hast du „Karten immer laden“ gewählt, kannst du das durch Löschen der Websitedaten widerrufen.
+  Mehr: <a href="https://osmfoundation.org/wiki/Privacy_Policy" target="_blank" rel="noopener">Datenschutzerklärung der OpenStreetMap Foundation</a>.
+</p>
+<p>
+  Wenn ein Geschäft oder Verein eine Adresse einträgt, ermittelt unser <em>Server</em> die Kartenposition über den Dienst
+  Nominatim der OpenStreetMap Foundation. Dabei wird nur die Adresse übermittelt, keine Daten von Besuchern.
+</p>
+
+<h2>7. Konto für Geschäfte und Vereine</h2>
+<p>
+  Für ein Konto speichern wir deine E-Mail-Adresse, dein Passwort (nur als sicher verschlüsselter Hash, Verfahren Argon2),
+  den Zeitpunkt von Registrierung, Bestätigung und letzter Anmeldung sowie die Inhalte, die du einträgst (Profil, Veranstaltungen,
+  Angebote, Bilder). Rechtsgrundlage ist die Erfüllung des Nutzungsvertrags (Art. 6 Abs. 1 lit. b DSGVO).
+</p>
+<p>
+  Du kannst dein Konto jederzeit selbst unter „Mein Konto → Einstellungen → Konto löschen“ löschen. Dabei werden
+  Konto, Profil, alle Einträge und Bilder sofort gelöscht. Unser Moderationsprotokoll (wer hat was freigegeben oder abgelehnt)
+  bleibt aus Gründen der Nachvollziehbarkeit erhalten, enthält dann aber keinen Bezug mehr zu deiner Person.
+</p>
+<p>Öffentliche Profildaten (Name, Adresse, Telefon, Webseite, Öffnungszeiten) trägst du selbst ein und sie werden bewusst veröffentlicht.</p>
+
+<h2>8. E-Mails</h2>
+<p>
+  Wir senden dir E-Mails zur Bestätigung deiner Adresse, zum Zurücksetzen des Passworts und zum Status deiner Einträge.
+  Der Versand erfolgt über {{ todo("E-Mail-Anbieter, z. B. Name und Sitz des SMTP-Dienstes") }} im Rahmen eines Auftragsverarbeitungsvertrags.
+  Es gibt keinen Newsletter.
+</p>
+
+<h2>9. Hochgeladene Bilder</h2>
+<p>Beim Hochladen entfernen wir automatisch alle Metadaten aus Bildern (z. B. Kameramodell und GPS-Standort) und verkleinern sie.</p>
+
+<h2>10. Teilen-Funktionen</h2>
+<p>
+  Der Button „WhatsApp“ ist ein einfacher Link. Erst wenn du darauf tippst, öffnet sich WhatsApp; vorher werden keine Daten an
+  WhatsApp oder Meta übertragen. „Link kopieren“ und „Teilen“ nutzen nur Funktionen deines Geräts.
+</p>
+
+<h2>11. Deine Rechte</h2>
+<p>
+  Du hast das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung der Verarbeitung (Art. 18),
+  Datenübertragbarkeit (Art. 20) und Widerspruch (Art. 21). Eine erteilte Einwilligung kannst du jederzeit mit Wirkung für die Zukunft widerrufen.
+  Schreib uns dazu einfach an die oben genannte Adresse.
+</p>
+<p>
+  Du kannst dich außerdem bei einer Datenschutz-Aufsichtsbehörde beschweren, zum Beispiel beim
+  Bayerischen Landesamt für Datenschutzaufsicht (BayLDA), Promenade 18, 91522 Ansbach,
+  <a href="https://www.lda.bayern.de" target="_blank" rel="noopener">www.lda.bayern.de</a>.
+</p>
+
+<p class="mt-8 text-sm text-stone-600 dark:text-stone-400">Stand: {{ todo("Datum") }}</p>
+{% endblock %}

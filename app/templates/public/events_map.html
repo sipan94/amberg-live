@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% from "macros/ui.html" import map_box with context %}
+
+{% block title %}{{ t("events.map_title") }} – {{ site_name }}{% endblock %}
+
+{% block content %}
+<div class="container-page py-8">
+  {% set page_title = t("events.map_title") %}
+  {% include "public/_events_header.html" %}
+
+  <p class="mt-6 mb-3 text-sm text-stone-600 dark:text-stone-400" role="status">
+    {{ t("events.results_one") if count == 1 else t("events.results", count=count) }}
+    {% if missing %} · {{ t("events.map_missing_one") if missing == 1 else t("events.map_missing", count=missing) }}{% endif %}
+  </p>
+  {{ map_box(markers_json, "h-[65vh] min-h-96") }}
+</div>
+{% endblock %}
+
+{% block scripts %}<script src="{{ asset('js/map.js') }}" defer></script>{% endblock %}

@@ -1,0 +1,10 @@
+# /etc/systemd/system/amberg-live-backup.service
+[Unit]
+Description=Amberg Live daily backup (database + uploads)
+
+[Service]
+Type=oneshot
+User=root
+ExecStart=/srv/amberg-live/deploy/backup.sh
+# Also switch off expired premium listings once a day
+ExecStartPost=/bin/sh -c 'cd /srv/amberg-live && runuser -u amberg -- /srv/amberg-live/.venv/bin/flask --app wsgi:app premium-expire'

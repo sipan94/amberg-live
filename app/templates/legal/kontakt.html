@@ -1,0 +1,20 @@
+{% extends "legal/_layout.html" %}
+{% from "macros/legal.html" import todo %}
+
+{% block legal %}
+<p>Du hast eine Frage, einen Fehler entdeckt oder möchtest einen Eintrag melden? Schreib uns:</p>
+<p class="text-lg font-semibold">E-Mail: {{ todo("kontakt@deine-domain.de – als mailto-Link eintragen") }}</p>
+
+<h2>Für Geschäfte und Vereine</h2>
+<p>
+  Eigene Veranstaltungen und Angebote trägst du am schnellsten selbst ein:
+  <a href="{{ url_for('auth.register') }}">kostenlos registrieren</a>.
+  Bereits registriert? <a href="{{ url_for('auth.login') }}">Zur Anmeldung</a>.
+</p>
+
+<h2>Eintrag melden</h2>
+<p>Wenn ein Eintrag falsch, veraltet oder rechtswidrig ist, schick uns bitte den Link dazu und eine kurze Beschreibung. Wir kümmern uns schnellstmöglich darum.</p>
+
+<h2>Datenschutz</h2>
+<p>Anfragen zu deinen Daten beantworten wir gern – Details findest du in der <a href="{{ url_for('public.legal', page='datenschutz') }}">Datenschutzerklärung</a>.</p>
+{% endblock %}

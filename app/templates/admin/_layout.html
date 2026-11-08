@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% set ep = request.endpoint or "" %}
+{% block title %}{{ t("admin.title") }} – {{ site_name }}{% endblock %}
+
+{% block content %}
+<div class="container-page py-6">
+  <div class="flex flex-wrap items-center justify-between gap-2">
+    <p class="text-sm font-semibold uppercase tracking-wide text-gold-800 dark:text-gold-300">{{ t("admin.title") }}</p>
+    <a class="link text-sm" href="{{ url_for('dashboard.index') }}">{{ t("admin.own_account") }}</a>
+  </div>
+  {% set pending_total = pending_counts.values()|sum %}
+  <nav class="scroll-row mt-3 border-b border-stone-200 pb-3 dark:border-stone-800" aria-label="{{ t('admin.nav_label') }}">
+    {% for endpoint, args, label, active in [
+      ("admin.index", {}, t("admin.nav_overview"), ep == "admin.index"),
+      ("admin.queue", {}, t("admin.nav_queue"), ep == "admin.queue"),
+      ("admin.content", {"kind": "veranstaltung"}, t("admin.nav_events"), ep in ("admin.content", "admin.edit") and request.view_args.get("kind") == "veranstaltung"),
+      ("admin.content", {"kind": "angebot"}, t("admin.nav_offers"), ep in ("admin.content", "admin.edit") and request.view_args.get("kind") == "angebot"),
+      ("admin.content", {"kind": "profil"}, t("admin.nav_orgs"), ep in ("admin.content", "admin.edit") and request.view_args.get("kind") == "profil"),
+      ("admin.users", {}, t("admin.nav_users"), ep == "admin.users"),
+      ("admin.categories", {}, t("admin.nav_categories"), ep.startswith("admin.categor")),
+      ("admin.log", {}, t("admin.nav_log"), ep == "admin.log")] %}
+      <a href="{{ url_for(endpoint, **args) }}" class="chip {% if active %}chip-active{% endif %}" {% if active %}aria-current="page"{% endif %}>
+        {{ label }}
+        {% if endpoint == "admin.queue" and pending_total %}<span class="rounded-full bg-rose-600 px-1.5 text-xs font-bold text-white">{{ pending_total }}</span>{% endif %}
+      </a>
+    {% endfor %}
+  </nav>
+  <div class="mt-6">
+    {% block admin_content %}{% endblock %}
+  </div>
+</div>
+{% endblock %}

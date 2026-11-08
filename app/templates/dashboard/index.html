@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% from "macros/icons.html" import icon %}
+{% from "macros/forms.html" import status_badge %}
+{% block title %}{{ t("dashboard.title") }} – {{ site_name }}{% endblock %}
+
+{% macro delete_button(action) %}
+<form method="post" action="{{ action }}" data-confirm="{{ t('dashboard.delete_confirm') }}">
+  {{ form.csrf_token }}
+  <button type="submit" class="btn min-h-10 px-3 text-rose-700 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-950/40">{{ t("dashboard.delete") }}</button>
+</form>
+{% endmacro %}
+
+{% macro rejection(item) %}
+{% if item.is_rejected and item.rejection_reason %}
+  <p class="mt-1 rounded-lg bg-rose-50 px-2 py-1 text-sm text-rose-900 dark:bg-rose-950/40 dark:text-rose-200"><strong>{{ t("dashboard.reason") }}:</strong> {{ item.rejection_reason }}</p>
+{% endif %}
+{% endmacro %}
+
+{% block content %}
+<div class="container-page max-w-4xl py-8">
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <h1 class="text-2xl font-extrabold tracking-tight sm:text-3xl">{{ t("dashboard.title") }}</h1>
+      <p class="text-sm text-stone-600 dark:text-stone-400">{{ t("dashboard.hello", email=current_user.email) }}</p>
+    </div>
+    <div class="flex flex-wrap gap-2">
+      {% if current_user.is_admin %}
+        {% set pending = admin_pending() %}
+        <a class="btn-primary" href="{{ url_for('admin.index') }}">{{ t("admin.title") }}{% if pending %} <span class="rounded-full bg-rose-600 px-1.5 text-xs font-bold text-white">{{ pending }}</span>{% endif %}</a>
+      {% endif %}
+      <a class="btn-secondary" href="{{ url_for('dashboard.settings') }}">{{ t("dashboard.settings") }}</a>
+      <form method="post" action="{{ url_for('auth.logout') }}">{{ form.csrf_token }}
+        <button type="submit" class="btn-secondary">{{ t("nav.logout") }}</button>
+      </form>
+    </div>
+  </div>
+
+  {% if not current_user.is_verified %}
+    <div class="mt-6 flex flex-wrap items-center gap-3 rounded-2xl border border-gold-300 bg-gold-50 p-4 dark:border-gold-700 dark:bg-gold-950/30" role="status">
+      {{ icon("mail", "size-5 shrink-0 text-gold-800 dark:text-gold-300") }}
+      <p class="flex-1 text-sm font-medium">{{ t("dashboard.verify_banner") }}</p>
+      <form method="post" action="{{ url_for('auth.resend_verification') }}">{{ form.csrf_token }}
+        <button class="btn-secondary min-h-10" type="submit">{{ t("dashboard.verify_resend") }}</button>
+      </form>
+    </div>
+  {% endif %}
+
+  {% if not org %}
+    <section class="card mt-6 p-6 text-center">
+      <h2 class="text-xl font-bold">{{ t("dashboard.no_profile_title") }}</h2>
+      <p class="mx-auto mt-2 max-w-md text-stone-600 dark:text-stone-400">{{ t("dashboard.no_profile_text") }}</p>
+      {% if current_user.is_verified %}
+        <a class="btn-primary mt-4" href="{{ url_for('dashboard.profile') }}">{{ t("dashboard.create_profile") }}</a>
+      {% endif %}
+    </section>
+  {% else %}
+    <section class="card mt-6 flex flex-wrap items-start gap-4 p-5">
+      <div class="size-14 shrink-0 overflow-hidden rounded-xl bg-stone-100 dark:bg-stone-800">
+        {% if org.logo %}<img src="{{ upload_url(org.logo, small=True) }}" alt="" class="size-full object-cover">
+        {% else %}<div class="flex size-full items-center justify-center text-xl font-extrabold" aria-hidden="true">{{ org.name[0] }}</div>{% endif %}
+      </div>
+      <div class="min-w-0 flex-1">
+        <div class="flex flex-wrap items-center gap-2">
+          <h2 class="text-lg font-bold">{{ org.name }}</h2>
+          {{ status_badge(org.status) }}
+          {% if org.is_premium %}<span class="badge-premium">{{ t("badges.premium") }}</span>{% endif %}
+        </div>
+        {% if org.is_pending %}<p class="mt-1 text-sm text-stone-600 dark:text-stone-400">{{ t("dashboard.org_pending_note") }}</p>{% endif %}
+        {% if org.is_rejected %}<p class="mt-1 text-sm text-stone-600 dark:text-stone-400">{{ t("dashboard.org_rejected_note") }}</p>{% endif %}
+        {{ rejection(org) }}
+        <p class="mt-1 text-sm text-stone-600 dark:text-stone-400">
+          {% if org.lat is not none %}{{ icon("pin", "inline size-4") }} {{ t("form.coords_found") }}{% elif org.address %}{{ t("form.coords_missing") }}{% endif %}
+        </p>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <a class="btn-secondary min-h-10" href="{{ url_for('dashboard.profile') }}">{{ t("dashboard.edit_profile") }}</a>
+        <a class="btn-secondary min-h-10" href="{{ url_for('public.organization_detail', slug=org.slug) }}">{{ t("dashboard.view_public") }}</a>
+      </div>
+    </section>
+
+    <section class="mt-10" aria-labelledby="h-my-events">
+      <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
+        <h2 id="h-my-events" class="section-title">{{ t("dashboard.events") }}</h2>
+        {% if current_user.is_verified %}<a class="btn-primary" href="{{ url_for('dashboard.event_new') }}">+ {{ t("dashboard.new_event") }}</a>{% endif %}
+      </div>
+      {% if events %}
+        <ul class="divide-y divide-stone-200 rounded-2xl border border-stone-200 bg-white dark:divide-stone-800 dark:border-stone-800 dark:bg-stone-900">
+          {% for ev in events %}
+            {% set over = not ev.is_recurring and (ev.end_at or ev.start_at) < now %}
+            <li class="flex flex-wrap items-center gap-3 p-4 {% if over %}opacity-60{% endif %}">
+              <div class="min-w-0 flex-1">
+                <div class="flex flex-wrap items-center gap-2">
+                  <a class="font-semibold hover:underline" href="{{ url_for('public.event_detail', slug=ev.slug) }}">{{ ev.title }}</a>
+                  {{ status_badge(ev.status) }}
+                  {% if ev.is_featured %}<span class="badge-featured">{{ t("badges.featured") }}</span>{% endif %}
+                  {% if over %}<span class="badge-muted">{{ t("dashboard.past") }}</span>{% endif %}
+                </div>
+                <p class="mt-0.5 text-sm text-stone-600 dark:text-stone-400">
+                  {{ ev.start_at|date_short }}, {{ ev.start_at.strftime("%H:%M") }}
+                  {% if ev.is_recurring %}· {{ icon("repeat", "inline size-3.5") }} {{ t("events.weekly") if ev.recurrence == "weekly" else t("events.monthly") }}{% endif %}
+                  · {{ t("dashboard.views", count=ev.view_count) }}
+                </p>
+                {{ rejection(ev) }}
+              </div>
+              <div class="flex gap-1">
+                <a class="btn-secondary min-h-10 px-3" href="{{ url_for('dashboard.event_edit', event_id=ev.id) }}">{{ t("dashboard.edit") }}</a>
+                {{ delete_button(url_for('dashboard.event_delete', event_id=ev.id)) }}
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="rounded-2xl border border-dashed border-stone-300 p-6 text-center text-stone-600 dark:border-stone-700 dark:text-stone-400">{{ t("dashboard.no_events") }}</p>
+      {% endif %}
+    </section>
+
+    <section class="mt-10" aria-labelledby="h-my-offers">
+      <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
+        <h2 id="h-my-offers" class="section-title">{{ t("dashboard.offers") }}</h2>
+        {% if current_user.is_verified %}<a class="btn-primary" href="{{ url_for('dashboard.offer_new') }}">+ {{ t("dashboard.new_offer") }}</a>{% endif %}
+      </div>
+      {% if offers %}
+        <ul class="divide-y divide-stone-200 rounded-2xl border border-stone-200 bg-white dark:divide-stone-800 dark:border-stone-800 dark:bg-stone-900">
+          {% for offer in offers %}
+            {% set over = offer.valid_until and offer.valid_until < now.date() %}
+            <li class="flex flex-wrap items-center gap-3 p-4 {% if over %}opacity-60{% endif %}">
+              <div class="min-w-0 flex-1">
+                <div class="flex flex-wrap items-center gap-2">
+                  <a class="font-semibold hover:underline" href="{{ url_for('public.offer_detail', slug=offer.slug) }}">{{ offer.title }}</a>
+                  {{ status_badge(offer.status) }}
+                  {% if over %}<span class="badge-muted">{{ t("dashboard.expired") }}</span>{% endif %}
+                </div>
+                <p class="mt-0.5 text-sm text-stone-600 dark:text-stone-400">
+                  {{ offer.valid_from|date_numeric }}{% if offer.valid_until %} – {{ offer.valid_until|date_numeric }}{% endif %}
+                  · {{ t("dashboard.views", count=offer.view_count) }}
+                </p>
+                {{ rejection(offer) }}
+              </div>
+              <div class="flex gap-1">
+                <a class="btn-secondary min-h-10 px-3" href="{{ url_for('dashboard.offer_edit', offer_id=offer.id) }}">{{ t("dashboard.edit") }}</a>
+                {{ delete_button(url_for('dashboard.offer_delete', offer_id=offer.id)) }}
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="rounded-2xl border border-dashed border-stone-300 p-6 text-center text-stone-600 dark:border-stone-700 dark:text-stone-400">{{ t("dashboard.no_offers") }}</p>
+      {% endif %}
+    </section>
+  {% endif %}
+</div>
+{% endblock %}

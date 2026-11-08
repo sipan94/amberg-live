@@ -1,0 +1,44 @@
+{% extends "legal/_layout.html" %}
+{% from "macros/legal.html" import todo %}
+
+{% block legal %}
+<h2>Angaben gemäß § 5 DDG</h2>
+<p>
+  {{ todo("Vor- und Nachname bzw. Firmenname, ggf. Rechtsform") }}<br>
+  {{ todo("Straße und Hausnummer") }}<br>
+  {{ todo("PLZ") }} Amberg
+</p>
+
+<h2>Kontakt</h2>
+<p>
+  Telefon: {{ todo("Telefonnummer") }}<br>
+  E-Mail: {{ todo("E-Mail-Adresse") }}
+</p>
+
+<h2>Umsatzsteuer-ID</h2>
+<p>Umsatzsteuer-Identifikationsnummer gemäß § 27a UStG: {{ todo("USt-IdNr. – oder diesen Abschnitt löschen, wenn keine vorhanden ist") }}</p>
+
+<h2>Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</h2>
+<p>{{ todo("Name und Anschrift der verantwortlichen Person") }}</p>
+
+<h2>Verbraucherstreitbeilegung</h2>
+<p>Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.</p>
+
+<h2>Inhalte von Geschäften und Vereinen</h2>
+<p>
+  Veranstaltungen, Angebote und Profile werden von den jeweiligen Geschäften und Vereinen selbst eingetragen.
+  Wir prüfen Einträge vor der Veröffentlichung, übernehmen aber keine Gewähr für die Richtigkeit von Terminen,
+  Preisen und sonstigen Angaben. Verantwortlich für einen Eintrag ist der jeweilige Anbieter.
+  Rechtsverletzende Inhalte entfernen wir umgehend, sobald wir davon Kenntnis erhalten – bitte melde sie uns über die
+  <a href="{{ url_for('public.legal', page='kontakt') }}">Kontaktseite</a>.
+</p>
+
+<h2>Links zu anderen Webseiten</h2>
+<p>
+  Für Inhalte externer Webseiten, auf die wir verlinken, sind ausschließlich deren Betreiber verantwortlich.
+  Zum Zeitpunkt der Verlinkung waren keine Rechtsverstöße erkennbar.
+</p>
+
+<h2>Kartendaten</h2>
+<p>Kartendaten © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap-Mitwirkende</a>, verfügbar unter der Open Database License (ODbL).</p>
+{% endblock %}
