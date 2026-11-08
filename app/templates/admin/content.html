@@ -18,7 +18,7 @@
 </form>
 <p class="mt-3 text-sm text-stone-600 dark:text-stone-400">{{ t("admin.total", count=page.total) }}</p>
 
-<ul class="mt-3 divide-y divide-stone-200 rounded-2xl border border-stone-200 bg-white dark:divide-stone-800 dark:border-stone-800 dark:bg-stone-900">
+<ul class="mt-3 divide-y divide-stone-900/[0.07] rounded-xl border border-stone-900/[0.08] bg-white dark:divide-white/[0.07] dark:border-white/[0.09] dark:bg-stone-900">
 {% for item in page.items %}
   {% set is_org = kind == "profil" %}
   <li class="flex flex-wrap items-center gap-3 p-4">
@@ -47,7 +47,7 @@
       {% else %}
         <details class="relative">
           <summary class="btn-secondary min-h-10 cursor-pointer list-none px-3">{{ t("badges.premium") }}</summary>
-          <form method="post" action="{{ url_for('admin.premium', item_id=item.id) }}" class="absolute right-0 z-20 mt-1 w-64 space-y-2 rounded-xl border border-stone-200 bg-white p-3 shadow-lg dark:border-stone-700 dark:bg-stone-900">
+          <form method="post" action="{{ url_for('admin.premium', item_id=item.id) }}" class="absolute right-0 z-20 mt-1 w-64 space-y-2 rounded-xl border border-stone-900/[0.08] bg-white p-3 shadow-lg dark:border-stone-700 dark:bg-stone-900">
             {{ premium_form.csrf_token }}
             <label class="label" for="until-{{ item.id }}">{{ t("admin.premium_until") }}</label>
             <input id="until-{{ item.id }}" type="date" name="until" class="input" min="{{ now.date().isoformat() }}" value="{{ item.premium_until.date().isoformat() if item.premium_until else '' }}">

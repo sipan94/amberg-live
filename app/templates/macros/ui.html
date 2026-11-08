@@ -3,7 +3,7 @@
 {% macro fav_button(slug, cls="") -%}
 <button type="button" data-fav="{{ slug }}" aria-pressed="false"
         aria-label="{{ t('favorites.add') }}" data-label-add="{{ t('favorites.add') }}" data-label-remove="{{ t('favorites.remove') }}"
-        class="group relative z-10 inline-flex size-11 items-center justify-center rounded-full bg-white/90 text-stone-700 shadow-sm backdrop-blur hover:text-rose-600 aria-pressed:text-rose-600 dark:bg-stone-900/90 dark:text-stone-200 {{ cls }}">
+        class="group relative z-10 inline-flex size-11 items-center justify-center rounded-full bg-white/90 text-stone-700 shadow-soft backdrop-blur hover:text-rose-600 aria-pressed:text-rose-600 dark:bg-stone-900/90 dark:text-stone-200 {{ cls }}">
   {{ icon("heart", "size-5 group-aria-pressed:fill-current") }}
 </button>
 {%- endmacro %}
@@ -13,26 +13,27 @@
 {% if event.organization.is_premium %}<span class="badge-premium">{{ t("badges.premium") }}</span>{% endif %}
 {%- endmacro %}
 
-{% macro placeholder(category, icon_name=None, cls="") -%}
-{% set color = category.color if category else "#64748b" %}
-<div class="flex size-full items-center justify-center {{ cls }}" style="background-image: linear-gradient(135deg, {{ color }}22, {{ color }}66); color: {{ color }}">
-  {{ icon(icon_name or (category.icon if category else "other"), "size-12 opacity-80") }}
+{# Cover for entries without a photo: pattern + icon in the category colour (see .cover in app.css) #}
+{% macro placeholder(category, icon_name=None, cls="", color=None) -%}
+{% set color = color or (category.color if category else "#7b746a") %}
+<div class="cover {{ cls }}" style="--c: {{ color }}">
+  <span class="cover-icon">{{ icon(icon_name or (category.icon if category else "other"), "size-8") }}</span>
 </div>
 {%- endmacro %}
 
 {# Big card with image, used on the home page #}
 {% macro event_card(occ) -%}
 {% set ev = occ.event %}
-<article class="card card-link relative flex flex-col {% if occ.is_highlight %}ring-2 ring-gold-400{% endif %}">
+<article class="card card-link relative flex flex-col {% if occ.is_highlight %}card-highlight{% endif %}">
   <div class="relative aspect-[16/9] bg-stone-100 dark:bg-stone-800">
     {% if ev.image %}
       <img src="{{ upload_url(ev.image, small=True) }}" alt="{{ t('events.image_alt', title=ev.title) }}" loading="lazy" class="size-full object-cover">
     {% else %}
       {{ placeholder(ev.category) }}
     {% endif %}
-    <div class="absolute top-2 left-2 rounded-xl bg-white px-2.5 py-1 text-center leading-tight shadow-sm dark:bg-stone-900">
+    <div class="absolute top-2 left-2 rounded-xl bg-white px-2.5 py-1 text-center leading-tight shadow-soft dark:bg-stone-900">
       <span class="block text-lg font-extrabold">{{ occ.start.day }}</span>
-      <span class="block text-[11px] font-semibold uppercase text-stone-600 dark:text-stone-300">{{ t("dates.months_short")[occ.start.month - 1] }}</span>
+      <span class="block text-xs font-semibold text-stone-600 dark:text-stone-300">{{ t("dates.months_short")[occ.start.month - 1] }}</span>
     </div>
     <div class="absolute top-2 right-2">{{ fav_button(ev.slug) }}</div>
     <div class="absolute bottom-2 left-2 flex gap-1">{{ highlight_badges(ev) }}</div>
@@ -62,7 +63,7 @@
 {# Compact row, used in lists grouped by day #}
 {% macro event_row(occ, show_day=False) -%}
 {% set ev = occ.event %}
-<article class="relative flex items-start gap-3 rounded-2xl border border-stone-200 bg-white p-3 shadow-sm transition hover:border-gold-400 dark:border-stone-800 dark:bg-stone-900 {% if occ.is_highlight %}ring-2 ring-gold-400{% endif %}">
+<article class="relative flex items-start gap-3 rounded-xl border border-stone-900/[0.08] bg-white p-3 shadow-soft transition-colors hover:border-stone-900/[0.18] dark:hover:border-white/[0.2] dark:border-white/[0.09] dark:bg-stone-900 {% if occ.is_highlight %}card-highlight{% endif %}">
   <div class="w-16 shrink-0 rounded-xl py-2 text-center" style="background: {{ ev.category.color if ev.category else '#64748b' }}1f">
     {% if show_day %}
       <span class="block text-xs font-semibold text-stone-600 dark:text-stone-300">{{ t("dates.weekdays_short")[occ.start.weekday()] }}</span>
@@ -92,12 +93,12 @@
 {%- endmacro %}
 
 {% macro offer_card(offer) -%}
-<article class="card card-link relative flex flex-col {% if offer.is_featured or offer.organization.is_premium %}ring-2 ring-gold-400{% endif %}">
+<article class="card card-link relative flex flex-col {% if offer.is_featured or offer.organization.is_premium %}card-highlight{% endif %}">
   <div class="relative aspect-[16/9] bg-stone-100 dark:bg-stone-800">
     {% if offer.image %}
       <img src="{{ upload_url(offer.image, small=True) }}" alt="{{ offer.title }}" loading="lazy" class="size-full object-cover">
     {% else %}
-      <div class="flex size-full items-center justify-center bg-gradient-to-br from-gold-100 to-gold-300 text-gold-800 dark:from-gold-900/40 dark:to-gold-700/40 dark:text-gold-200">{{ icon("tag", "size-12") }}</div>
+      {{ placeholder(None, "tag", color="#cc8f1c") }}
     {% endif %}
     <div class="absolute bottom-2 left-2 flex gap-1">
       {% if offer.is_featured %}<span class="badge-featured">{{ icon("star", "size-3") }} {{ t("badges.featured") }}</span>{% endif %}
@@ -120,12 +121,12 @@
 {%- endmacro %}
 
 {% macro org_card(org) -%}
-<article class="card card-link relative flex gap-4 p-4 {% if org.is_premium %}ring-2 ring-gold-400{% endif %}">
-  <div class="size-16 shrink-0 overflow-hidden rounded-2xl bg-stone-100 dark:bg-stone-800">
+<article class="card card-link relative flex gap-4 p-4 {% if org.is_premium %}card-highlight{% endif %}">
+  <div class="size-16 shrink-0 overflow-hidden rounded-xl bg-stone-100 dark:bg-stone-800">
     {% if org.logo %}
       <img src="{{ upload_url(org.logo, small=True) }}" alt="{{ t('orgs.logo_alt', name=org.name) }}" loading="lazy" class="size-full object-cover">
     {% else %}
-      <div class="flex size-full items-center justify-center text-2xl font-extrabold {% if org.is_club %}bg-teal-100 text-teal-800 dark:bg-teal-900/40 dark:text-teal-200{% else %}bg-gold-100 text-gold-800 dark:bg-gold-900/40 dark:text-gold-200{% endif %}" aria-hidden="true">{{ org.name[0] }}</div>
+      <div class="flex size-full items-center justify-center text-2xl font-extrabold {% if org.is_club %}bg-[#33807a]/[0.12] text-[#2a6a65] dark:bg-[#33807a]/25 dark:text-[#8fd0c9]{% else %}bg-gold-100 text-gold-800 dark:bg-gold-400/15 dark:text-gold-200{% endif %}" aria-hidden="true">{{ org.name[0] }}</div>
     {% endif %}
   </div>
   <div class="min-w-0 flex-1">
@@ -157,7 +158,7 @@
 
 {# Map that only loads OpenStreetMap after the visitor agrees (no IP sent to OSM before). #}
 {% macro map_box(markers_json, height="h-72") -%}
-<div class="relative isolate {{ height }} overflow-hidden rounded-2xl border border-stone-200 bg-stone-100 dark:border-stone-800 dark:bg-stone-900"
+<div class="relative isolate {{ height }} overflow-hidden rounded-xl border border-stone-900/[0.08] bg-stone-100 dark:border-white/[0.09] dark:bg-stone-900"
      data-map="{{ markers_json|forceescape }}"
      data-leaflet-js="{{ asset('vendor/leaflet/leaflet.js') }}"
      data-leaflet-css="{{ asset('vendor/leaflet/leaflet.css') }}"

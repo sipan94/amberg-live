@@ -5,11 +5,11 @@
 {% block content %}
 <div class="container-page py-6">
   <div class="flex flex-wrap items-center justify-between gap-2">
-    <p class="text-sm font-semibold uppercase tracking-wide text-gold-800 dark:text-gold-300">{{ t("admin.title") }}</p>
+    <p class="flex items-center gap-2 text-sm font-semibold text-stone-600 dark:text-stone-300">{{ t("admin.title") }}</p>
     <a class="link text-sm" href="{{ url_for('dashboard.index') }}">{{ t("admin.own_account") }}</a>
   </div>
   {% set pending_total = pending_counts.values()|sum %}
-  <nav class="scroll-row mt-3 border-b border-stone-200 pb-3 dark:border-stone-800" aria-label="{{ t('admin.nav_label') }}">
+  <nav class="scroll-row mt-3 border-b border-stone-900/[0.08] pb-3 dark:border-white/[0.09]" aria-label="{{ t('admin.nav_label') }}">
     {% for endpoint, args, label, active in [
       ("admin.index", {}, t("admin.nav_overview"), ep == "admin.index"),
       ("admin.queue", {}, t("admin.nav_queue"), ep == "admin.queue"),

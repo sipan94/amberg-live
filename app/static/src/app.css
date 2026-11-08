@@ -1,4 +1,25 @@
 /* Source for app/static/css/app.css. Build: npm run build:css (or watch:css while developing) */
+
+/* Self-hosted font: no request to Google or any other server. */
+@font-face {
+  font-family: "Schibsted Grotesk";
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+  src: url("../vendor/fonts/schibsted-grotesk-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308,
+    U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Schibsted Grotesk";
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+  src: url("../vendor/fonts/schibsted-grotesk-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -7,15 +28,24 @@
   html {
     -webkit-tap-highlight-color: transparent;
     scroll-padding-top: 5rem;
+    font-feature-settings: "ss01", "tnum" 0;
   }
   body {
     @apply bg-stone-50 text-stone-900 antialiased dark:bg-stone-950 dark:text-stone-100;
+    line-height: 1.55;
+  }
+  h1, h2, h3 {
+    letter-spacing: -0.015em;
+    text-wrap: balance;
   }
   :focus-visible {
     @apply outline outline-2 outline-offset-2 outline-gold-500;
   }
   a {
-    @apply underline-offset-2;
+    @apply underline-offset-[3px];
+  }
+  ::selection {
+    @apply bg-gold-200 text-stone-900;
   }
 }
 
@@ -23,56 +53,111 @@
   .container-page {
     @apply mx-auto w-full max-w-6xl px-4 sm:px-6;
   }
+
+  /* Surfaces: 1px hairline first, then a barely visible shadow (light) / top edge light (dark). */
   .card {
-    @apply overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm dark:border-stone-800 dark:bg-stone-900;
+    @apply overflow-hidden rounded-xl border border-stone-900/[0.08] bg-white shadow-soft
+           dark:border-white/[0.09] dark:bg-stone-900 dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.05)];
   }
   .card-link {
-    @apply transition hover:-translate-y-0.5 hover:shadow-md motion-reduce:transition-none motion-reduce:hover:translate-y-0;
+    @apply transition-[border-color,box-shadow] duration-200 hover:border-stone-900/[0.16] hover:shadow-lift
+           dark:hover:border-white/[0.18];
   }
+  /* Highlighted (Tipp / Partner): warm tint + gold hairline instead of a loud ring */
+  .card-highlight {
+    @apply border-gold-300 bg-gold-50/60 dark:border-gold-400/50 dark:bg-gold-400/[0.09];
+  }
+
   .btn {
-    @apply inline-flex min-h-[2.75rem] items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold no-underline transition disabled:opacity-50;
+    @apply inline-flex min-h-[2.75rem] items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold no-underline transition-colors disabled:opacity-50;
   }
-  /* City colors: black text on flag gold (~12:1 contrast). White on gold would fail WCAG AA. */
+  /* Dark text on honey gold: ~8.7:1 contrast. White on gold would fail WCAG AA. */
   .btn-primary {
-    @apply btn bg-gold-400 text-stone-950 hover:bg-gold-300;
+    @apply btn bg-gold-400 text-stone-950 shadow-[inset_0_-1px_0_rgba(0,0,0,0.12)] hover:bg-gold-300;
   }
   .btn-secondary {
-    @apply btn border border-stone-300 bg-white text-stone-800 hover:bg-stone-100 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100 dark:hover:bg-stone-800;
+    @apply btn border border-stone-900/[0.12] bg-white text-stone-800 hover:border-stone-900/[0.22] hover:bg-stone-50
+           dark:border-white/[0.12] dark:bg-stone-900 dark:text-stone-100 dark:hover:border-white/[0.22] dark:hover:bg-stone-800;
   }
+
   .chip {
-    @apply inline-flex min-h-[2.5rem] shrink-0 items-center gap-1.5 rounded-full border border-stone-300 bg-white px-3.5 text-sm font-medium text-stone-700 no-underline hover:border-gold-400 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-200;
+    @apply inline-flex min-h-[2.5rem] shrink-0 items-center gap-1.5 rounded-full border border-stone-900/[0.1] bg-white px-3.5 text-sm font-medium text-stone-700 no-underline transition-colors
+           hover:border-stone-900/[0.22] dark:border-white/[0.1] dark:bg-stone-900 dark:text-stone-200 dark:hover:border-white/[0.24];
   }
   .chip-active {
-    @apply border-gold-400 bg-gold-100 text-stone-950 dark:bg-gold-400/20 dark:text-gold-100;
+    @apply border-gold-400 bg-gold-100 text-stone-900 dark:border-gold-400/60 dark:bg-gold-400/15 dark:text-gold-100;
   }
+
   .input {
-    @apply min-h-[2.75rem] w-full rounded-xl border border-stone-300 bg-white px-3 py-2 text-base text-stone-900 placeholder:text-stone-400 focus:border-gold-500 focus:outline-none focus:ring-2 focus:ring-gold-400/40 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100;
+    @apply min-h-[2.75rem] w-full rounded-lg border border-stone-900/[0.14] bg-white px-3 py-2 text-base text-stone-900 placeholder:text-stone-400
+           focus:border-gold-500 focus:outline-none focus:ring-4 focus:ring-gold-400/25
+           dark:border-white/[0.14] dark:bg-stone-900 dark:text-stone-100;
   }
   .label {
     @apply mb-1 block text-sm font-medium text-stone-700 dark:text-stone-300;
   }
   .link {
-    @apply font-medium text-gold-800 underline hover:text-gold-900 dark:text-gold-300 dark:hover:text-gold-200;
+    @apply font-medium text-gold-800 underline decoration-gold-400/60 decoration-1 hover:decoration-gold-600 dark:text-gold-300 dark:decoration-gold-300/50;
   }
   .section-title {
-    @apply text-xl font-bold tracking-tight sm:text-2xl;
+    @apply text-xl font-extrabold sm:text-2xl;
   }
+
   .badge {
-    @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold;
+    @apply inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-semibold;
   }
   .badge-featured {
-    @apply badge bg-gold-400 text-stone-950;
+    @apply badge bg-gold-200 text-gold-950 dark:bg-gold-400/20 dark:text-gold-100;
   }
   .badge-premium {
-    @apply badge bg-stone-900 text-gold-300 dark:bg-gold-300 dark:text-stone-950;
+    @apply badge bg-flag text-gold-200 dark:bg-gold-200 dark:text-stone-950;
   }
   .badge-muted {
     @apply badge bg-stone-100 text-stone-700 dark:bg-stone-800 dark:text-stone-300;
   }
+
   .scroll-row {
     @apply -mx-4 flex gap-2 overflow-x-auto px-4 pb-2 sm:mx-0 sm:flex-wrap sm:px-0;
     scrollbar-width: none;
   }
+
+  /* The logo mark: a tiny Amberg flag (dark – gold – dark). */
+  .flag-mark {
+    @apply inline-block shrink-0 overflow-hidden rounded-[5px];
+    background: linear-gradient(to bottom, #2a2520 0 33.4%, #e3a92b 33.4% 66.6%, #2a2520 66.6% 100%);
+    box-shadow: 0 0 0 1px rgba(42, 37, 32, 0.12);
+  }
+  /* On dark backgrounds the dark bands need a light edge, or only the gold stripe is visible. */
+  .dark .flag-mark,
+  .bg-flag .flag-mark {
+    box-shadow: 0 0 0 1.5px rgba(246, 245, 242, 0.32);
+  }
+
+  /* Cover for entries without a photo. --c = category colour (set inline per card).
+     Soft tint + fine diagonal hatching + two large faint circles: reads as a designed cover, not an empty box. */
+  .cover {
+    @apply relative flex size-full items-center justify-center overflow-hidden;
+    color: var(--c);
+    background-color: color-mix(in srgb, var(--c) 9%, #fbfaf8);
+    background-image:
+      radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--c) 20%, transparent) 0 32%, transparent 32.5%),
+      radial-gradient(circle at 0% 100%, color-mix(in srgb, var(--c) 13%, transparent) 0 24%, transparent 24.5%),
+      repeating-linear-gradient(-45deg, color-mix(in srgb, var(--c) 8%, transparent) 0 1.5px, transparent 1.5px 12px);
+  }
+  .cover-icon {
+    @apply flex size-[4.5rem] items-center justify-center rounded-full;
+    background: rgba(255, 255, 255, 0.78);
+    box-shadow: 0 0 0 7px color-mix(in srgb, var(--c) 10%, transparent), 0 2px 8px rgba(36, 33, 29, 0.06);
+  }
+  .dark .cover {
+    background-color: color-mix(in srgb, var(--c) 15%, #24211d);
+  }
+  .dark .cover-icon {
+    background: rgba(26, 24, 21, 0.6);
+    color: color-mix(in srgb, var(--c) 65%, #ffffff);
+    box-shadow: 0 0 0 7px color-mix(in srgb, var(--c) 18%, transparent);
+  }
+
   /* Formatting for user-written descriptions (sanitized HTML) */
   .prose-text p { @apply mb-3 leading-relaxed; }
   .prose-text ul { @apply mb-3 list-disc pl-5; }
@@ -80,12 +165,25 @@
   .prose-text a { @apply link; }
 }
 
+/* Small grey hints (text-stone-500) are used without a dark variant in many templates.
+   On the dark canvas they'd drop below WCAG AA (≈3.9:1), so lift them one step. */
+.dark .text-stone-500 {
+  color: #a39d92;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+}
+
 /* Leaflet popups in dark mode */
 .dark .leaflet-popup-content-wrapper,
 .dark .leaflet-popup-tip {
-  background: #1c1917;
-  color: #f5f5f4;
+  background: #24211d;
+  color: #eeece7;
 }
 .dark .leaflet-popup-content-wrapper a {
-  color: #fcd34d;
+  color: #ecc25e;
+}
+.leaflet-container {
+  font-family: inherit;
 }

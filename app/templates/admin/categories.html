@@ -6,7 +6,7 @@
   <h1 class="text-2xl font-extrabold tracking-tight">{{ t("admin.nav_categories") }}</h1>
   <a class="btn-primary" href="{{ url_for('admin.category_edit') }}">+ {{ t("admin.new_category") }}</a>
 </div>
-<ul class="mt-4 divide-y divide-stone-200 rounded-2xl border border-stone-200 bg-white dark:divide-stone-800 dark:border-stone-800 dark:bg-stone-900">
+<ul class="mt-4 divide-y divide-stone-900/[0.07] rounded-xl border border-stone-900/[0.08] bg-white dark:divide-white/[0.07] dark:border-white/[0.09] dark:bg-stone-900">
 {% for cat, count in rows %}
   <li class="flex flex-wrap items-center gap-3 p-4">
     <span class="flex size-10 items-center justify-center rounded-xl" style="background: {{ cat.color }}22; color: {{ cat.color }}">{{ icon(cat.icon) }}</span>

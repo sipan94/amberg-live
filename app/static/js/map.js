@@ -60,7 +60,7 @@
     var points = [];
     markers.forEach(function (m) {
       L.circleMarker([m.lat, m.lng], {
-        radius: 9, color: "#ffffff", weight: 2, fillColor: m.color || "#b38600", fillOpacity: 0.95,
+        radius: 9, color: "#ffffff", weight: 2, fillColor: m.color || "#a87215", fillOpacity: 0.95,
       }).addTo(map).bindPopup(popupContent(m));
       points.push([m.lat, m.lng]);
     });

@@ -24,7 +24,7 @@
 
   <div class="grid gap-8 lg:grid-cols-[1fr_22rem]">
     <div class="min-w-0">
-      <div class="relative aspect-[16/9] overflow-hidden rounded-2xl bg-stone-100 dark:bg-stone-800">
+      <div class="relative aspect-[16/9] overflow-hidden rounded-xl bg-stone-100 dark:bg-stone-800">
         {% if ev.image %}
           <img src="{{ upload_url(ev.image) }}" alt="{{ t('events.image_alt', title=ev.title) }}" class="size-full object-cover">
         {% else %}
@@ -50,7 +50,7 @@
       {% if dates|length > 1 %}
       <section class="mt-8" aria-labelledby="h-dates">
         <h2 id="h-dates" class="mb-3 text-lg font-bold">{{ t("events.next_dates") }}</h2>
-        <ul class="divide-y divide-stone-200 rounded-2xl border border-stone-200 bg-white dark:divide-stone-800 dark:border-stone-800 dark:bg-stone-900">
+        <ul class="divide-y divide-stone-900/[0.07] rounded-xl border border-stone-900/[0.08] bg-white dark:divide-white/[0.07] dark:border-white/[0.09] dark:bg-stone-900">
           {% for start, end in dates %}
             <li class="flex items-center gap-3 px-4 py-3 text-sm">{{ icon("calendar", "size-4 text-stone-500") }} {{ start|date_long }}, {{ t("dates.time", time=start.strftime("%H:%M")) }}</li>
           {% endfor %}
@@ -60,11 +60,11 @@
     </div>
 
     <aside class="space-y-4">
-      <div class="card divide-y divide-stone-200 dark:divide-stone-800">
+      <div class="card divide-y divide-stone-900/[0.07] dark:divide-white/[0.07]">
         <div class="flex gap-3 p-4">
           {{ icon("clock", "size-5 mt-0.5 shrink-0 text-gold-700 dark:text-gold-300") }}
           <div>
-            <p class="text-xs font-semibold uppercase text-stone-500 dark:text-stone-400">{{ t("events.when") }}</p>
+            <p class="text-sm text-stone-500 dark:text-stone-400">{{ t("events.when") }}</p>
             <p class="font-semibold">{{ next_start|date_long }}</p>
             <p class="text-sm text-stone-700 dark:text-stone-300">{{ next_start|when(next_end) }}</p>
             {% if ev.is_recurring %}
@@ -77,7 +77,7 @@
         <div class="flex gap-3 p-4">
           {{ icon("pin", "size-5 mt-0.5 shrink-0 text-gold-700 dark:text-gold-300") }}
           <div>
-            <p class="text-xs font-semibold uppercase text-stone-500 dark:text-stone-400">{{ t("events.location") }}</p>
+            <p class="text-sm text-stone-500 dark:text-stone-400">{{ t("events.location") }}</p>
             {% if ev.location_name %}<p class="font-semibold">{{ ev.location_name }}</p>{% endif %}
             {% if ev.address %}<p class="text-sm text-stone-700 dark:text-stone-300">{{ ev.address }}</p>{% endif %}
             {% if ev.lat is not none %}
@@ -90,14 +90,14 @@
         <div class="flex gap-3 p-4">
           {{ icon("euro", "size-5 mt-0.5 shrink-0 text-gold-700 dark:text-gold-300") }}
           <div>
-            <p class="text-xs font-semibold uppercase text-stone-500 dark:text-stone-400">{{ t("events.price_label") }}</p>
+            <p class="text-sm text-stone-500 dark:text-stone-400">{{ t("events.price_label") }}</p>
             <p class="font-semibold">{{ ev|price }}</p>
           </div>
         </div>
         <div class="flex gap-3 p-4">
           {{ icon("store", "size-5 mt-0.5 shrink-0 text-gold-700 dark:text-gold-300") }}
           <div>
-            <p class="text-xs font-semibold uppercase text-stone-500 dark:text-stone-400">{{ t("events.organizer") }}</p>
+            <p class="text-sm text-stone-500 dark:text-stone-400">{{ t("events.organizer") }}</p>
             <a class="link font-semibold" href="{{ url_for('public.organization_detail', slug=ev.organization.slug) }}">{{ ev.organization.name }}</a>
           </div>
         </div>
@@ -116,7 +116,7 @@
       {% endif %}
 
       {% if ev.lat is not none %}
-        {{ map_box([{"lat": ev.lat, "lng": ev.lng, "title": ev.location_name or ev.title, "color": ev.category.color if ev.category else "#b38600"}]|tojson) }}
+        {{ map_box([{"lat": ev.lat, "lng": ev.lng, "title": ev.location_name or ev.title, "color": ev.category.color if ev.category else "#a87215"}]|tojson) }}
       {% endif %}
     </aside>
   </div>

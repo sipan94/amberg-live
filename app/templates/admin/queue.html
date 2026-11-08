@@ -13,7 +13,7 @@
 </div>
 
 {% if not items %}
-  <p class="mt-6 rounded-2xl border border-dashed border-stone-300 p-8 text-center text-stone-600 dark:border-stone-700 dark:text-stone-400">{{ t("admin.queue_empty") }}</p>
+  <p class="mt-6 rounded-xl border border-dashed border-stone-300 p-8 text-center text-stone-600 dark:border-stone-700 dark:text-stone-400">{{ t("admin.queue_empty") }}</p>
 {% endif %}
 
 <div class="mt-6 space-y-6">
@@ -59,7 +59,7 @@
       <a class="btn-secondary" href="{{ url_for('admin.edit', kind=kind, item_id=item.id) }}">{{ t("dashboard.edit") }}</a>
       <details class="w-full sm:w-auto sm:flex-1">
         <summary class="btn cursor-pointer list-none border border-rose-300 text-rose-800 hover:bg-rose-50 dark:border-rose-800 dark:text-rose-300 dark:hover:bg-rose-950/40">✕ {{ t("admin.reject") }}</summary>
-        <form method="post" action="{{ url_for('admin.reject', kind=kind, item_id=item.id) }}" class="mt-3 space-y-2 rounded-xl border border-stone-200 p-3 dark:border-stone-800">
+        <form method="post" action="{{ url_for('admin.reject', kind=kind, item_id=item.id) }}" class="mt-3 space-y-2 rounded-xl border border-stone-900/[0.08] p-3 dark:border-white/[0.09]">
           {{ reject_form.csrf_token }}
           <label class="label" for="reason-{{ item.id }}">{{ t("admin.reason_label") }}</label>
           <div class="flex flex-wrap gap-1">

@@ -14,26 +14,39 @@
 {% endblock %}
 
 {% block content %}
-<section class="border-b border-stone-200 bg-gradient-to-b from-gold-100 to-stone-50 py-10 sm:py-14 dark:border-stone-800 dark:from-gold-950/40 dark:to-stone-950">
-  <div class="container-page">
-    <h1 class="text-3xl font-extrabold tracking-tight sm:text-4xl">{{ t("home.hero_title") }}</h1>
-    <p class="mt-2 max-w-xl text-stone-700 dark:text-stone-300">{{ t("home.hero_text") }}</p>
-    <form action="{{ url_for('public.events') }}" method="get" role="search" class="mt-6 flex max-w-xl gap-2">
+{# The one bold moment of the site: warm slate (city colours, softened) with the Stadtbrille as a faint line drawing. #}
+<section class="relative isolate overflow-hidden bg-flag bg-gradient-to-b from-[#302a24] to-flag text-stone-50">
+  {# Phones: small, in the free top-right corner next to the short first title line. Larger screens: big, bottom right. #}
+  <svg class="pointer-events-none absolute -right-8 top-5 -z-10 h-24 w-auto text-gold-300 opacity-[0.2] sm:-right-4 sm:bottom-0 sm:top-auto sm:h-[115%] sm:opacity-[0.13] lg:right-0" viewBox="0 0 420 260" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+    {# Two bridge arches above the water line and their reflection below: the "glasses" of Amberg #}
+    <path d="M10 130H410" stroke-width="1.5"/>
+    <path d="M40 130V96a70 70 0 0 1 140 0v34M240 130V96a70 70 0 0 1 140 0v34"/>
+    <path d="M180 112h60M28 80h372M28 80V58h372v22" />
+    <path d="M40 130v34a70 70 0 0 0 140 0v-34M240 130v34a70 70 0 0 0 140 0v-34" stroke-dasharray="3 7" opacity=".7"/>
+    <path d="M60 205h28M110 220h40M270 210h36M320 226h22" stroke-width="1.5" opacity=".6"/>
+  </svg>
+  <div class="container-page py-12 sm:py-16">
+    <h1 class="max-w-xl text-[2.15rem] font-extrabold leading-[1.08] sm:text-5xl">{{ t("home.hero_title") }}</h1>
+    <p class="mt-3 max-w-md text-lg text-stone-300">{{ t("home.hero_text") }}</p>
+    <form action="{{ url_for('public.events') }}" method="get" role="search" class="mt-7 flex max-w-xl gap-2">
       <label for="home-q" class="sr-only">{{ t("nav.search") }}</label>
-      <input id="home-q" name="q" type="search" class="input" placeholder="{{ t('home.search_placeholder') }}">
+      <input id="home-q" name="q" type="search" class="input border-transparent dark:bg-white dark:text-stone-900" placeholder="{{ t('home.search_placeholder') }}">
       <button class="btn-primary shrink-0" type="submit">{{ icon("search", "size-4") }}<span class="sr-only sm:not-sr-only">{{ t("nav.search") }}</span></button>
     </form>
-    <div class="mt-6">
+    <div class="mt-7">
       <h2 class="sr-only">{{ t("home.categories") }}</h2>
       <div class="scroll-row">
         {% for cat in nav_categories() %}
-          <a class="chip" href="{{ url_for('public.events', kategorie=cat.slug) }}">
-            <span class="size-2.5 rounded-full" style="background: {{ cat.color }}"></span>{{ cat.name }}
+          <a class="inline-flex min-h-[2.5rem] shrink-0 items-center gap-2 rounded-full border border-white/[0.14] bg-white/[0.05] px-3.5 text-sm font-medium text-stone-100 no-underline transition-colors hover:border-white/[0.32] hover:bg-white/[0.09]"
+             href="{{ url_for('public.events', kategorie=cat.slug) }}">
+            <span class="size-2 rounded-full" style="background: {{ cat.color }}; box-shadow: 0 0 0 3px {{ cat.color }}33"></span>{{ cat.name }}
           </a>
         {% endfor %}
       </div>
     </div>
   </div>
+  {# Slim honey band: the gold of the city flag, as a quiet edge rather than a loud stripe #}
+  <div class="h-1 bg-gradient-to-r from-gold-500 via-gold-300 to-gold-500" aria-hidden="true"></div>
 </section>
 
 <div class="container-page space-y-12 py-10">
@@ -47,7 +60,7 @@
         {% for occ in today[:6] %}{{ event_card(occ) }}{% endfor %}
       </div>
     {% else %}
-      <p class="rounded-2xl border border-dashed border-stone-300 p-6 text-center text-stone-600 dark:border-stone-700 dark:text-stone-400">{{ t("home.nothing_today") }}</p>
+      <p class="rounded-xl border border-dashed border-stone-300 p-6 text-center text-stone-600 dark:border-stone-700 dark:text-stone-400">{{ t("home.nothing_today") }}</p>
     {% endif %}
   </section>
 
@@ -61,7 +74,7 @@
         {% for occ in weekend[:6] %}{{ event_card(occ) }}{% endfor %}
       </div>
     {% else %}
-      <p class="rounded-2xl border border-dashed border-stone-300 p-6 text-center text-stone-600 dark:border-stone-700 dark:text-stone-400">{{ t("home.nothing_weekend") }}</p>
+      <p class="rounded-xl border border-dashed border-stone-300 p-6 text-center text-stone-600 dark:border-stone-700 dark:text-stone-400">{{ t("home.nothing_weekend") }}</p>
     {% endif %}
   </section>
 

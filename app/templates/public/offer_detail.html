@@ -13,7 +13,7 @@
     <p class="mb-4 rounded-xl border border-stone-300 bg-stone-100 p-3 text-sm font-semibold dark:border-stone-700 dark:bg-stone-900" role="note">{{ t("offers.expired") }}</p>
   {% endif %}
   {% if offer.image %}
-    <img src="{{ upload_url(offer.image) }}" alt="{{ offer.title }}" class="mb-5 aspect-[16/9] w-full rounded-2xl object-cover">
+    <img src="{{ upload_url(offer.image) }}" alt="{{ offer.title }}" class="mb-5 aspect-[16/9] w-full rounded-xl object-cover">
   {% endif %}
   <div class="flex flex-wrap gap-1">
     {% if offer.is_featured %}<span class="badge-featured">{{ icon("star", "size-3") }} {{ t("badges.featured") }}</span>{% endif %}
@@ -23,7 +23,7 @@
   <p class="mt-2 flex items-center gap-1.5 font-semibold text-gold-800 dark:text-gold-300">{{ icon("tag", "size-4") }} {{ validity(offer) }}</p>
   <div class="prose-text mt-5 text-stone-800 dark:text-stone-200">{{ offer.description|rich }}</div>
   <div class="card mt-6 p-4">
-    <p class="text-xs font-semibold uppercase text-stone-500 dark:text-stone-400">{{ t("offers.from_org") }}</p>
+    <p class="text-sm text-stone-500 dark:text-stone-400">{{ t("offers.from_org") }}</p>
     <a class="link text-lg font-bold" href="{{ url_for('public.organization_detail', slug=offer.organization.slug) }}">{{ offer.organization.name }}</a>
     {% if offer.organization.address %}<p class="text-sm text-stone-600 dark:text-stone-400">{{ offer.organization.address }}</p>{% endif %}
   </div>

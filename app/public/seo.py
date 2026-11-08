@@ -22,8 +22,8 @@ def manifest():
         "start_url": "/?quelle=app",
         "scope": "/",
         "display": "standalone",
-        "background_color": "#fafaf9",
-        "theme_color": "#0d0c0b",
+        "background_color": "#f6f5f2",
+        "theme_color": "#f6f5f2",
         "categories": ["events", "lifestyle", "travel"],
         "icons": [
             {"src": asset("img/icon-192.png"), "sizes": "192x192", "type": "image/png"},

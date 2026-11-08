@@ -13,7 +13,7 @@
 
 {% set pending_total = pending_counts.values()|sum %}
 {% if pending_total %}
-  <a href="{{ url_for('admin.queue') }}" class="mb-6 flex items-center justify-between gap-3 rounded-2xl border border-gold-300 bg-gold-50 p-4 font-semibold no-underline hover:border-gold-500 dark:border-gold-700 dark:bg-gold-950/30">
+  <a href="{{ url_for('admin.queue') }}" class="mb-6 flex items-center justify-between gap-3 rounded-xl border border-gold-300 bg-gold-50 p-4 font-semibold no-underline hover:border-gold-500 dark:border-gold-700 dark:bg-gold-950/30">
     <span>{{ t("admin.pending_banner", count=pending_total) }}</span>
     <span class="text-sm">{{ t("admin.pending_detail", events=pending_counts.veranstaltung, offers=pending_counts.angebot, orgs=pending_counts.profil) }} →</span>
   </a>

@@ -62,7 +62,7 @@
 
 {% macro status_badge(status) %}
 {% set styles = {"pending": "bg-gold-100 text-gold-900 dark:bg-gold-400/20 dark:text-gold-200",
-                 "approved": "bg-emerald-100 text-emerald-900 dark:bg-emerald-400/20 dark:text-emerald-200",
-                 "rejected": "bg-rose-100 text-rose-900 dark:bg-rose-400/20 dark:text-rose-200"} %}
+                 "approved": "bg-[#5e8c4f]/[0.14] text-[#3c5f31] dark:bg-[#5e8c4f]/25 dark:text-[#b5d6a8]",
+                 "rejected": "bg-[#b34d6d]/[0.12] text-[#86304d] dark:bg-[#b34d6d]/25 dark:text-[#f0b3c6]"} %}
 <span class="badge {{ styles.get(status, '') }}">{{ t("status." ~ status) }}</span>
 {% endmacro %}

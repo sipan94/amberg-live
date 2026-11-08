@@ -3,12 +3,14 @@
 {% macro nav_link(endpoint, label, prefix) -%}
 {% set active = ep.startswith(prefix) %}
 <a href="{{ url_for(endpoint) }}" {% if active %}aria-current="page"{% endif %}
-   class="rounded-lg px-3 py-2 text-sm font-semibold no-underline hover:bg-white/10 {% if active %}text-gold-400{% else %}text-stone-200{% endif %}">{{ label }}</a>
+   class="relative rounded-lg px-3 py-2 text-sm font-semibold no-underline transition-colors hover:bg-stone-900/[0.05] dark:hover:bg-white/[0.07] {% if active %}text-stone-900 after:absolute after:inset-x-3 after:-bottom-[13px] after:h-0.5 after:rounded-full after:bg-gold-400 dark:text-white{% else %}text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-100{% endif %}">{{ label }}</a>
 {%- endmacro %}
 {% macro tab_link(endpoint, label, icon_name, active) -%}
 <a href="{{ url_for(endpoint) }}" aria-label="{{ label }}" {% if active %}aria-current="page"{% endif %}
-   class="flex min-h-14 flex-1 flex-col items-center justify-center gap-0.5 text-[11px] font-semibold no-underline {% if active %}text-gold-400{% else %}text-stone-300{% endif %}">
-  {{ icon(icon_name, "size-6") }}<span>{{ label }}</span>
+   class="flex min-h-[3.75rem] flex-1 flex-col items-center justify-center gap-1 text-[11px] font-semibold no-underline {% if active %}text-stone-900 dark:text-white{% else %}text-stone-500 dark:text-stone-400{% endif %}">
+  {# Active tab: a soft honey pill behind the icon instead of loud coloured text #}
+  <span class="flex h-7 w-14 items-center justify-center rounded-full transition-colors {% if active %}bg-gold-200/80 text-gold-900 dark:bg-gold-400/20 dark:text-gold-200{% endif %}">{{ icon(icon_name, "size-[22px]") }}</span>
+  <span>{{ label }}</span>
 </a>
 {%- endmacro %}
 <!doctype html>
@@ -35,7 +37,8 @@
 
   {# Progressive Web App #}
   <link rel="manifest" href="{{ url_for('public.manifest') }}">
-  <meta name="theme-color" content="#0d0c0b">
+  <meta name="theme-color" content="#f6f5f2" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1a1815" media="(prefers-color-scheme: dark)">
   <link rel="icon" href="{{ asset('img/favicon.ico') }}" sizes="any">
   <link rel="icon" href="{{ asset('img/icon-192.png') }}" type="image/png">
   <link rel="apple-touch-icon" href="{{ asset('img/apple-touch-icon.png') }}">
@@ -47,14 +50,14 @@
   <link rel="stylesheet" href="{{ asset('css/app.css') }}">
   {% block head %}{% endblock %}
 </head>
-<body class="flex min-h-dvh flex-col pb-[calc(3.75rem+env(safe-area-inset-bottom))] md:pb-0">
+<body class="flex min-h-dvh flex-col pb-[calc(4rem+env(safe-area-inset-bottom))] md:pb-0">
   <a href="#main" class="sr-only z-50 rounded-lg bg-gold-400 px-4 py-2 font-semibold text-stone-950 focus:not-sr-only focus:fixed focus:top-2 focus:left-2">{{ t("nav.skip") }}</a>
 
-  {# Header in the city colors: flag black with a gold stripe (Stadtfahne Schwarz – Gold – Schwarz). Same in light and dark mode. #}
-  <header class="sticky top-0 z-40 border-b-4 border-gold-400 bg-flag text-stone-100">
-    <div class="container-page flex h-16 items-center gap-2">
-      <a href="{{ url_for('public.home') }}" class="mr-auto flex items-center gap-2 whitespace-nowrap text-lg font-extrabold tracking-tight text-white no-underline">
-        <span class="inline-block size-3 rounded-full bg-gold-400 ring-4 ring-gold-400/30" aria-hidden="true"></span>
+  {# Quiet, light header. The city colours live in the flag logo mark and the home page hero. #}
+  <header class="sticky top-0 z-40 border-b border-stone-900/[0.07] bg-stone-50/85 text-stone-900 backdrop-blur-md dark:border-white/[0.07] dark:bg-stone-950/85 dark:text-stone-100">
+    <div class="container-page flex h-16 items-center gap-1.5">
+      <a href="{{ url_for('public.home') }}" class="mr-auto flex items-center gap-2.5 whitespace-nowrap text-lg font-extrabold tracking-tight no-underline">
+        <span class="flag-mark h-5 w-7" aria-hidden="true"></span>
         {{ site_name }}
       </a>
       <nav class="hidden items-center gap-1 md:flex" aria-label="{{ t('nav.main') }}">
@@ -63,27 +66,27 @@
         {{ nav_link("public.organizations", t("nav.directory"), "public.organization") }}
         {{ nav_link("public.favorites", t("nav.favorites"), "public.favorites") }}
       </nav>
-      <a href="{{ url_for('public.events') }}#suche" class="inline-flex size-11 items-center justify-center rounded-full hover:bg-white/10" aria-label="{{ t('nav.search') }}">{{ icon("search") }}</a>
+      <a href="{{ url_for('public.events') }}#suche" class="inline-flex size-11 items-center justify-center rounded-full text-stone-600 transition-colors hover:bg-stone-900/[0.05] hover:text-stone-900 dark:text-stone-300 dark:hover:bg-white/[0.07] dark:hover:text-white" aria-label="{{ t('nav.search') }}">{{ icon("search") }}</a>
       {% if current_user.is_authenticated and current_user.is_admin %}
         {% set pending = admin_pending() %}
-        <a href="{{ url_for('admin.index') }}" class="relative hidden whitespace-nowrap rounded-lg px-3 py-2 text-sm font-semibold no-underline hover:bg-white/10 md:inline-block {% if ep.startswith('admin.') %}text-gold-400{% else %}text-stone-200{% endif %}">
+        <a href="{{ url_for('admin.index') }}" class="relative hidden whitespace-nowrap rounded-lg px-3 py-2 text-sm font-semibold no-underline hover:bg-stone-900/[0.05] dark:hover:bg-white/[0.07] md:inline-block {% if ep.startswith('admin.') %}text-stone-900 dark:text-white{% else %}text-stone-600 dark:text-stone-300{% endif %}">
           Admin{% if pending %} <span class="rounded-full bg-rose-600 px-1.5 text-xs font-bold text-white" aria-label="{{ t('admin.pending_banner', count=pending) }}">{{ pending }}</span>{% endif %}
         </a>
       {% endif %}
       {% if current_user.is_authenticated %}
-        <a href="{{ url_for('dashboard.index') }}" class="relative inline-flex size-11 items-center justify-center rounded-full hover:bg-white/10 {% if ep.startswith('dashboard.') %}text-gold-400{% endif %}" aria-label="{{ t('nav.account') }}" title="{{ t('nav.account') }}">
+        <a href="{{ url_for('dashboard.index') }}" class="relative inline-flex size-11 items-center justify-center rounded-full text-stone-600 transition-colors hover:bg-stone-900/[0.05] hover:text-stone-900 dark:text-stone-300 dark:hover:bg-white/[0.07] dark:hover:text-white {% if ep.startswith('dashboard.') %}!text-gold-800 dark:!text-gold-300{% endif %}" aria-label="{{ t('nav.account') }}" title="{{ t('nav.account') }}">
           {{ icon("user") }}
-          {% if current_user.is_admin and pending %}<span class="absolute right-1.5 top-1.5 size-2.5 rounded-full bg-rose-600 ring-2 ring-flag md:hidden" aria-hidden="true"></span>{% endif %}
+          {% if current_user.is_admin and pending %}<span class="absolute right-1.5 top-1.5 size-2.5 rounded-full bg-rose-600 ring-2 ring-stone-50 md:hidden dark:ring-stone-950" aria-hidden="true"></span>{% endif %}
         </a>
         <form method="post" action="{{ url_for('auth.logout') }}" class="hidden md:block">
           {{ logout_form.csrf_token }}
-          <button type="submit" class="rounded-lg px-3 py-2 text-sm font-semibold text-stone-200 hover:bg-white/10">{{ t("nav.logout") }}</button>
+          <button type="submit" class="rounded-lg px-3 py-2 text-sm font-semibold text-stone-600 hover:bg-stone-900/[0.05] dark:text-stone-300 dark:hover:bg-white/[0.07]">{{ t("nav.logout") }}</button>
         </form>
       {% else %}
-        <a href="{{ url_for('auth.login') }}" class="inline-flex size-11 items-center justify-center rounded-full hover:bg-white/10 md:hidden" aria-label="{{ t('nav.login') }}">{{ icon("user") }}</a>
-        <a href="{{ url_for('auth.login') }}" class="hidden rounded-lg px-3 py-2 text-sm font-semibold text-stone-200 no-underline hover:bg-white/10 md:inline-block">{{ t("nav.login") }}</a>
+        <a href="{{ url_for('auth.login') }}" class="inline-flex size-11 items-center justify-center rounded-full text-stone-600 transition-colors hover:bg-stone-900/[0.05] hover:text-stone-900 dark:text-stone-300 dark:hover:bg-white/[0.07] dark:hover:text-white md:hidden" aria-label="{{ t('nav.login') }}">{{ icon("user") }}</a>
+        <a href="{{ url_for('auth.login') }}" class="hidden rounded-lg px-3 py-2 text-sm font-semibold text-stone-700 no-underline dark:text-stone-200 hover:bg-stone-900/[0.05] dark:hover:bg-white/[0.07] md:inline-block">{{ t("nav.login") }}</a>
       {% endif %}
-      <button type="button" data-theme-toggle class="inline-flex size-11 items-center justify-center rounded-full hover:bg-white/10" aria-label="{{ t('nav.theme_toggle') }}">
+      <button type="button" data-theme-toggle class="inline-flex size-11 items-center justify-center rounded-full text-stone-600 transition-colors hover:bg-stone-900/[0.05] hover:text-stone-900 dark:text-stone-300 dark:hover:bg-white/[0.07] dark:hover:text-white" aria-label="{{ t('nav.theme_toggle') }}">
         <span class="dark:hidden">{{ icon("moon") }}</span><span class="hidden dark:inline">{{ icon("sun") }}</span>
       </button>
     </div>
@@ -104,10 +107,10 @@
     {% block content %}{% endblock %}
   </main>
 
-  <footer class="mt-16 border-t border-stone-200 bg-white py-10 text-sm dark:border-stone-800 dark:bg-stone-900">
+  <footer class="mt-20 border-t border-stone-900/[0.07] bg-stone-100/70 py-12 text-sm dark:border-white/[0.07] dark:bg-stone-900/60">
     <div class="container-page grid gap-8 sm:grid-cols-3">
       <div>
-        <p class="flex items-center gap-2 font-extrabold"><span class="size-2.5 rounded-full bg-gold-400" aria-hidden="true"></span>{{ site_name }}</p>
+        <p class="flex items-center gap-2 font-extrabold"><span class="flag-mark h-4 w-6" aria-hidden="true"></span>{{ site_name }}</p>
         <p class="mt-2 text-stone-600 dark:text-stone-400">{{ t("footer.about") }}</p>
         <p class="mt-2 text-stone-600 dark:text-stone-400">{{ t("footer.no_tracking") }}</p>
         <button type="button" data-install class="btn-secondary mt-4 hidden" title="{{ t('pwa.install_hint') }}">{{ t("pwa.install") }}</button>
@@ -135,7 +138,7 @@
   </footer>
 
   {# Bottom tab bar on phones: big touch targets within thumb reach #}
-  <nav class="fixed inset-x-0 bottom-0 z-40 flex border-t-4 border-gold-400 bg-flag pb-[env(safe-area-inset-bottom)] md:hidden" aria-label="{{ t('nav.mobile') }}">
+  <nav class="fixed inset-x-0 bottom-0 z-40 flex border-t border-stone-900/[0.08] bg-stone-50/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-md md:hidden dark:border-white/[0.08] dark:bg-stone-950/90" aria-label="{{ t('nav.mobile') }}">
     {{ tab_link("public.home", t("nav.home"), "home", ep == "public.home") }}
     {{ tab_link("public.events", t("nav.events_short"), "calendar", ep in ("public.events", "public.events_calendar", "public.event_detail")) }}
     {{ tab_link("public.events_map", t("nav.map"), "map", ep == "public.events_map") }}

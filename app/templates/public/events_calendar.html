@@ -29,10 +29,15 @@
           {% set in_month = day.month == month.month %}
           {% set is_today = day == now.date() %}
           <td class="h-16 align-top sm:h-28">
-            {% set cell_cls = "flex h-full flex-col rounded-xl border p-1 sm:p-1.5 " ~ ("border-gold-400 bg-gold-50 dark:bg-gold-950/30 " if is_today else "border-stone-200 bg-white dark:border-stone-800 dark:bg-stone-900 ") ~ ("" if in_month else "opacity-40") %}
+            {% set active_day = items and day >= now.date() %}
+            {# Days with upcoming events are raised white tiles; empty or past days stay flat, so the month is scannable at a glance #}
+            {% set cell_cls = "flex h-full flex-col rounded-lg border p-1 sm:p-1.5 " ~ (
+                 "border-gold-400 bg-gold-50 dark:border-gold-400/60 dark:bg-gold-400/10 " if is_today
+                 else ("border-stone-900/[0.1] bg-white shadow-soft dark:border-white/[0.1] dark:bg-stone-900 " if active_day
+                 else "border-transparent bg-stone-900/[0.03] dark:bg-white/[0.03] ")) ~ ("" if in_month else "opacity-40") %}
             {% if items and day >= now.date() %}
               <a href="{{ url_for('public.events', von=day.isoformat(), bis=day.isoformat(), kategorie=state.category, preis=state.price, q=state.q or None) }}"
-                 class="{{ cell_cls }} no-underline hover:border-gold-400"
+                 class="{{ cell_cls }} no-underline transition-colors hover:border-gold-400 dark:hover:border-gold-400/70"
                  aria-label="{{ t('events.calendar_day_link', count=items|length, date=day|date_short) }}">
                 <span class="text-sm font-bold {% if is_today %}text-gold-800 dark:text-gold-300{% endif %}">{{ day.day }}</span>
                 <span class="mt-auto flex flex-wrap gap-0.5 sm:hidden" aria-hidden="true">
@@ -46,7 +51,7 @@
                 </span>
               </a>
             {% else %}
-              <div class="{{ cell_cls }}"><span class="text-sm text-stone-500">{{ day.day }}</span></div>
+              <div class="{{ cell_cls }}"><span class="text-sm {% if is_today %}font-bold text-gold-800 dark:text-gold-300{% else %}text-stone-500 dark:text-stone-400{% endif %}">{{ day.day }}</span></div>
             {% endif %}
           </td>
         {% endfor %}

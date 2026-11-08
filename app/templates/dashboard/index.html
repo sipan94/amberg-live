@@ -36,7 +36,7 @@
   </div>
 
   {% if not current_user.is_verified %}
-    <div class="mt-6 flex flex-wrap items-center gap-3 rounded-2xl border border-gold-300 bg-gold-50 p-4 dark:border-gold-700 dark:bg-gold-950/30" role="status">
+    <div class="mt-6 flex flex-wrap items-center gap-3 rounded-xl border border-gold-300 bg-gold-50 p-4 dark:border-gold-700 dark:bg-gold-950/30" role="status">
       {{ icon("mail", "size-5 shrink-0 text-gold-800 dark:text-gold-300") }}
       <p class="flex-1 text-sm font-medium">{{ t("dashboard.verify_banner") }}</p>
       <form method="post" action="{{ url_for('auth.resend_verification') }}">{{ form.csrf_token }}
@@ -84,7 +84,7 @@
         {% if current_user.is_verified %}<a class="btn-primary" href="{{ url_for('dashboard.event_new') }}">+ {{ t("dashboard.new_event") }}</a>{% endif %}
       </div>
       {% if events %}
-        <ul class="divide-y divide-stone-200 rounded-2xl border border-stone-200 bg-white dark:divide-stone-800 dark:border-stone-800 dark:bg-stone-900">
+        <ul class="divide-y divide-stone-900/[0.07] rounded-xl border border-stone-900/[0.08] bg-white dark:divide-white/[0.07] dark:border-white/[0.09] dark:bg-stone-900">
           {% for ev in events %}
             {% set over = not ev.is_recurring and (ev.end_at or ev.start_at) < now %}
             <li class="flex flex-wrap items-center gap-3 p-4 {% if over %}opacity-60{% endif %}">
@@ -110,7 +110,7 @@
           {% endfor %}
         </ul>
       {% else %}
-        <p class="rounded-2xl border border-dashed border-stone-300 p-6 text-center text-stone-600 dark:border-stone-700 dark:text-stone-400">{{ t("dashboard.no_events") }}</p>
+        <p class="rounded-xl border border-dashed border-stone-300 p-6 text-center text-stone-600 dark:border-stone-700 dark:text-stone-400">{{ t("dashboard.no_events") }}</p>
       {% endif %}
     </section>
 
@@ -120,7 +120,7 @@
         {% if current_user.is_verified %}<a class="btn-primary" href="{{ url_for('dashboard.offer_new') }}">+ {{ t("dashboard.new_offer") }}</a>{% endif %}
       </div>
       {% if offers %}
-        <ul class="divide-y divide-stone-200 rounded-2xl border border-stone-200 bg-white dark:divide-stone-800 dark:border-stone-800 dark:bg-stone-900">
+        <ul class="divide-y divide-stone-900/[0.07] rounded-xl border border-stone-900/[0.08] bg-white dark:divide-white/[0.07] dark:border-white/[0.09] dark:bg-stone-900">
           {% for offer in offers %}
             {% set over = offer.valid_until and offer.valid_until < now.date() %}
             <li class="flex flex-wrap items-center gap-3 p-4 {% if over %}opacity-60{% endif %}">
@@ -144,7 +144,7 @@
           {% endfor %}
         </ul>
       {% else %}
-        <p class="rounded-2xl border border-dashed border-stone-300 p-6 text-center text-stone-600 dark:border-stone-700 dark:text-stone-400">{{ t("dashboard.no_offers") }}</p>
+        <p class="rounded-xl border border-dashed border-stone-300 p-6 text-center text-stone-600 dark:border-stone-700 dark:text-stone-400">{{ t("dashboard.no_offers") }}</p>
       {% endif %}
     </section>
   {% endif %}

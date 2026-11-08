@@ -17,7 +17,7 @@
 
 <div class="container-page">
   <div class="-mt-12 flex items-end gap-4">
-    <div class="size-24 shrink-0 overflow-hidden rounded-2xl border-4 border-stone-50 bg-white shadow dark:border-stone-950 dark:bg-stone-900">
+    <div class="size-24 shrink-0 overflow-hidden rounded-xl border-4 border-stone-50 bg-white shadow dark:border-stone-950 dark:bg-stone-900">
       {% if org.logo %}
         <img src="{{ upload_url(org.logo) }}" alt="{{ t('orgs.logo_alt', name=org.name) }}" class="size-full object-cover">
       {% else %}
@@ -81,7 +81,7 @@
       {% endif %}
 
       {% if org.lat is not none %}
-        {{ map_box([{"lat": org.lat, "lng": org.lng, "title": org.name, "color": "#b38600"}]|tojson) }}
+        {{ map_box([{"lat": org.lat, "lng": org.lng, "title": org.name, "color": "#a87215"}]|tojson) }}
       {% endif %}
     </aside>
   </div>
