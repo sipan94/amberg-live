@@ -2,7 +2,10 @@
 from flask import current_app, url_for
 from sqlalchemy import inspect
 
-from ..models import Event, Offer, Organization, Status
+from ..extensions import db
+from ..i18n import t
+from ..models import Event, ModerationAction, ModerationLog, Offer, Organization, Status
+from ..utils.timeutils import utcnow
 from .mail import send_mail
 
 # Columns that never matter for moderation decisions.
@@ -44,6 +47,39 @@ def submit(item, *, is_new: bool = False, changed: set[str] | None = None) -> bo
         _notify_admin(item, is_new)
         return True
     return False
+
+
+def _owner(item):
+    return item.owner if isinstance(item, Organization) else item.organization.owner
+
+
+def _label(item) -> str:
+    return getattr(item, "title", None) or item.name
+
+
+def public_url(item, external: bool = True) -> str:
+    endpoint = {Event: "public.event_detail", Offer: "public.offer_detail",
+                Organization: "public.organization_detail"}[type(item)]
+    return url_for(endpoint, slug=item.slug, _external=external)
+
+
+def approve(item, admin) -> None:
+    """Publish an item, log it and tell the owner. Commits. Used by web admin and app API."""
+    item.status, item.rejection_reason, item.reviewed_at = Status.APPROVED, None, utcnow()
+    ModerationLog.record(admin, item, ModerationAction.APPROVE)
+    db.session.commit()
+    send_mail(_owner(item).email, t("emails.approved_subject"), "approved",
+              label=_label(item), url=public_url(item))
+
+
+def reject(item, admin, reason: str) -> None:
+    """Reject with a reason, log it and tell the owner what to change. Commits."""
+    item.status, item.rejection_reason, item.reviewed_at = Status.REJECTED, reason, utcnow()
+    ModerationLog.record(admin, item, ModerationAction.REJECT, reason)
+    db.session.commit()
+    send_mail(_owner(item).email, t("emails.rejected_subject"), "rejected",
+              label=_label(item), reason=reason,
+              dashboard_url=url_for("dashboard.index", _external=True))
 
 
 def _notify_admin(item, is_new: bool) -> None:

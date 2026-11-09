@@ -9,6 +9,7 @@ prüft alles vor der Veröffentlichung.
 - Flask · SQLAlchemy · SQLite (Entwicklung) / PostgreSQL (Produktion) · Tailwind · Leaflet/OpenStreetMap
 
 > Deployment auf einem eigenen Server: **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)**
+> Schnittstelle für die iPhone-/Android-App: **[docs/API.md](docs/API.md)**
 
 ---
 
@@ -135,11 +136,13 @@ app/
   billing/           Premium – hier wird später Stripe angebunden
   services/          Logik: Termine, Bilder, Mail, Moderation, Statistik, iCal, JSON-LD
   forms/             WTForms mit deutschen Fehlermeldungen
+  api/               JSON-API für die App (/api/v1)
   i18n/de.json       alle UI-Texte
   templates/         Jinja-Templates
   static/            CSS (gebaut), JS, Icons, Leaflet
 deploy/              gunicorn, systemd, nginx, Backup
 docs/DEPLOYMENT.md   Server-Anleitung
+docs/API.md          App-API
 migrations/          Datenbank-Migrationen
 tests/               pytest
 ```

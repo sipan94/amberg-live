@@ -1,10 +1,10 @@
 """Admin area: moderation queue, content management, users, categories, statistics."""
-from datetime import datetime, time, timedelta
+from datetime import datetime, time
 from urllib.parse import urlsplit
 
 from flask import abort, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
-from sqlalchemy import func, or_, select
+from sqlalchemy import func, select
 
 from .. import billing
 from ..extensions import db
@@ -12,14 +12,12 @@ from ..forms.admin import CategoryForm, PremiumForm, RejectForm
 from ..forms.auth import SimpleForm
 from ..forms.dashboard import EventForm, OfferForm, OrganizationForm
 from ..i18n import t
-from ..models import (Category, Event, ModerationAction, ModerationLog, Offer, Organization, Role,
-                      Status, User)
-from ..services import editing
-from ..services.events import EventFilter, find_occurrences, first_per_event
+from ..models import (ApiToken, Category, Event, ModerationAction, ModerationLog, Offer, Organization, Status,
+                      User)
+from ..services import editing, moderation
 from ..services.images import ImageError
-from ..services.mail import send_mail
-from ..services.stats import daily_totals
-from ..utils.timeutils import now_local, utcnow
+from ..services.stats import admin_overview
+from ..utils.timeutils import now_local
 from . import bp
 
 PER_PAGE = 25
@@ -80,36 +78,14 @@ def _label(item) -> str:
     return getattr(item, "title", None) or item.name
 
 
-def _public_url(item, external=False) -> str:
-    endpoint = {Event: "public.event_detail", Offer: "public.offer_detail",
-                Organization: "public.organization_detail"}[type(item)]
-    return url_for(endpoint, slug=item.slug, _external=external)
-
-
 # ---- overview & statistics ----------------------------------------------------
 
 @bp.get("/")
 def index():
-    now = now_local()
-    week_ago = utcnow() - timedelta(days=7)
-    count = lambda stmt: db.session.scalar(stmt) or 0  # noqa: E731
-    stats = {
-        "users": count(select(func.count(User.id)).where(User.role == Role.ORG)),
-        "users_new": count(select(func.count(User.id)).where(User.created_at >= week_ago)),
-        "orgs": count(select(func.count(Organization.id)).where(Organization.status == Status.APPROVED)),
-        "premium": count(select(func.count(Organization.id)).where(Organization.is_premium.is_(True))),
-        "events_upcoming": len(first_per_event(find_occurrences(EventFilter(now, now + timedelta(days=30))))),
-        "offers": count(select(func.count(Offer.id)).where(
-            Offer.status == Status.APPROVED,
-            or_(Offer.valid_until.is_(None), Offer.valid_until >= now.date()))),
-    }
-    days = daily_totals(30)
-    top_events = db.session.scalars(select(Event).where(Event.status == Status.APPROVED)
-                                    .order_by(Event.view_count.desc()).limit(5)).all()
-    recent = db.session.scalars(select(ModerationLog).order_by(ModerationLog.created_at.desc()).limit(8)).all()
-    return render_template("admin/index.html", stats=stats, days=days,
-                           views_total=sum(v for _, v in days), views_max=max([v for _, v in days] + [1]),
-                           top_events=top_events, recent=recent)
+    data = admin_overview()
+    return render_template("admin/index.html", stats=data["stats"], days=data["days"],
+                           views_total=data["views_total"], views_max=max([v for _, v in data["days"]] + [1]),
+                           top_events=data["top_events"], recent=data["recent"])
 
 
 # ---- moderation queue ------------------------------------------------------------
@@ -132,11 +108,7 @@ def approve(kind, item_id):
     item = get_item(kind, item_id)
     if not SimpleForm().validate_on_submit():
         abort(400)
-    item.status, item.rejection_reason, item.reviewed_at = Status.APPROVED, None, utcnow()
-    ModerationLog.record(current_user, item, ModerationAction.APPROVE)
-    db.session.commit()
-    send_mail(_owner(item).email, t("emails.approved_subject"), "approved",
-              label=_label(item), url=_public_url(item, external=True))
+    moderation.approve(item, current_user)
     flash(t("admin.approved", label=_label(item)), "success")
     if not isinstance(item, Organization) and not item.organization.is_approved:
         flash(t("admin.org_not_approved"), "info")
@@ -150,12 +122,7 @@ def reject(kind, item_id):
     if not form.validate_on_submit():
         flash(" ".join(str(e) for e in form.reason.errors) or t("admin.reason_missing"), "error")
         return _back(url_for("admin.queue", typ=kind))
-    item.status, item.rejection_reason, item.reviewed_at = Status.REJECTED, form.reason.data, utcnow()
-    ModerationLog.record(current_user, item, ModerationAction.REJECT, form.reason.data)
-    db.session.commit()
-    send_mail(_owner(item).email, t("emails.rejected_subject"), "rejected",
-              label=_label(item), reason=form.reason.data,
-              dashboard_url=url_for("dashboard.index", _external=True))
+    moderation.reject(item, current_user, form.reason.data)
     flash(t("admin.rejected", label=_label(item)), "success")
     return _back(url_for("admin.queue", typ=kind))
 
@@ -283,6 +250,8 @@ def toggle_block(user_id):
     if user.id == current_user.id or not SimpleForm().validate_on_submit():
         abort(400)
     user.is_blocked = not user.is_blocked
+    if user.is_blocked:
+        ApiToken.revoke_all(user.id)  # also log out of the app
     ModerationLog.record(current_user, user, ModerationAction.BLOCK if user.is_blocked else ModerationAction.UNBLOCK)
     db.session.commit()
     flash(t("admin.saved"), "success")

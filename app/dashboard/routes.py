@@ -9,7 +9,7 @@ from ..extensions import db, limiter
 from ..forms.auth import ChangePasswordForm, DeleteAccountForm, SimpleForm
 from ..forms.dashboard import EventForm, OfferForm, OrganizationForm
 from ..i18n import t
-from ..models import Event, ModerationLog, Offer, Organization, Role, User
+from ..models import ApiToken, Event, ModerationLog, Offer, Organization, Role, User
 from ..services import editing, moderation
 from ..services.images import ImageError, delete_image
 from ..utils.timeutils import now_local
@@ -219,6 +219,7 @@ def settings():
             form.current_password.errors = [t("validation.wrong_password")]
         else:
             current_user.set_password(form.password.data)
+            ApiToken.revoke_all(current_user.id)  # log out all app devices
             db.session.commit()
             flash(t("dashboard.password_changed"), "success")
             return redirect(url_for("dashboard.settings"))

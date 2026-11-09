@@ -34,6 +34,9 @@ class User(UserMixin, TimestampMixin, db.Model):
     organizations: Mapped[list["Organization"]] = relationship(  # noqa: F821
         back_populates="owner", cascade="all, delete-orphan"
     )
+    api_tokens: Mapped[list["ApiToken"]] = relationship(  # noqa: F821
+        back_populates="user", cascade="all, delete-orphan"
+    )
 
     @validates("email")
     def _normalize_email(self, _key, value: str) -> str:

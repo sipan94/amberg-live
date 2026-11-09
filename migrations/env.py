@@ -101,6 +101,10 @@ def run_migrations_online():
             # Batch migrations recreate tables; with foreign keys ON that would
             # cascade-delete child rows. Must run outside a transaction.
             connection.exec_driver_sql("PRAGMA foreign_keys=OFF")
+            # End the transaction SQLAlchemy opened for the PRAGMA. Otherwise Alembic
+            # sees a running transaction, never commits its own, and the version
+            # entry in alembic_version is silently rolled back.
+            connection.commit()
         context.configure(
             connection=connection,
             target_metadata=get_metadata(),

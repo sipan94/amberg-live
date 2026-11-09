@@ -8,7 +8,7 @@ from sqlalchemy import select
 from ..extensions import db, limiter, login_manager
 from ..forms.auth import ForgotPasswordForm, LoginForm, RegisterForm, ResetPasswordForm, SimpleForm
 from ..i18n import t
-from ..models import Role, User
+from ..models import ApiToken, Role, User
 from ..services.mail import send_mail
 from ..services.tokens import RESET_MAX_AGE, VERIFY_MAX_AGE, make_reset_token, make_verify_token, read_token
 from ..utils.timeutils import utcnow
@@ -157,6 +157,7 @@ def reset_password(token):
     form = ResetPasswordForm()
     if form.validate_on_submit():
         user.set_password(form.password.data)
+        ApiToken.revoke_all(user.id)  # log out all app devices
         if not user.is_verified:  # the link proved they own the address
             user.is_verified, user.verified_at = True, utcnow()
         db.session.commit()
