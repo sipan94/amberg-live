@@ -9,7 +9,7 @@ prüft alles vor der Veröffentlichung.
 - Flask · SQLAlchemy · SQLite (Entwicklung) / PostgreSQL (Produktion) · Tailwind · Leaflet/OpenStreetMap
 
 > Deployment auf einem eigenen Server: **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)**
-> Schnittstelle für die iPhone-/Android-App: **[docs/API.md](docs/API.md)**
+> Schnittstelle für die iPhone-/Android-App: **[docs/API.md](docs/API.md)** · App selbst: **[mobile/README.md](mobile/README.md)**
 
 ---
 

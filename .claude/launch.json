@@ -4,8 +4,15 @@
     {
       "name": "amberg-live",
       "runtimeExecutable": ".venv\\Scripts\\flask.exe",
-      "runtimeArgs": ["run", "--debug", "--port", "5000"],
+      "runtimeArgs": ["run", "--debug", "--host", "0.0.0.0", "--port", "5000"],
       "port": 5000
+    },
+    {
+      "name": "app-web",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["mobile/node_modules/expo/bin/cli", "start", "mobile", "--port", "8081"],
+      "env": { "EXPO_PUBLIC_API_URL": "http://localhost:5001" },
+      "port": 8081
     }
   ]
 }

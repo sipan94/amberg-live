@@ -6,7 +6,7 @@ cannot be abused from other websites with a visitor's logged-in session.
 """
 from functools import wraps
 
-from flask import Blueprint, g, jsonify, request
+from flask import Blueprint, current_app, g, jsonify, request
 from werkzeug.datastructures import CombinedMultiDict, MultiDict
 
 from ..extensions import csrf
@@ -27,6 +27,21 @@ def _authenticate():
         if token is not None and not token.user.is_blocked:
             token.touch()
             g.api_token, g.api_user = token, token.user
+
+
+# Only for the Expo web preview during development (phones don't need CORS).
+DEV_PREVIEW_ORIGINS = {"http://localhost:8081", "http://127.0.0.1:8081"}
+
+
+@bp.after_request
+def _dev_cors(response):
+    origin = request.headers.get("Origin")
+    if current_app.debug and origin in DEV_PREVIEW_ORIGINS:
+        response.headers["Access-Control-Allow-Origin"] = origin
+        response.headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type"
+        response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE"
+        response.headers["Vary"] = "Origin"
+    return response
 
 
 def error(message: str, status: int = 400, **extra):
