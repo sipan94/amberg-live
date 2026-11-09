@@ -87,6 +87,8 @@ function Navigator({ fontsLoaded }: { fontsLoaded: boolean }) {
         <Stack.Screen name="offers/[slug]" options={{ title: "" }} />
         <Stack.Screen name="places/[slug]" options={{ title: "" }} />
         <Stack.Screen name="favorites" />
+        <Stack.Screen name="login" options={{ presentation: "modal" }} />
+        <Stack.Screen name="register" options={{ presentation: "modal" }} />
       </Stack>
     </>
   );

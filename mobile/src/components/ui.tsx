@@ -73,15 +73,15 @@ function cardStyle(theme: Theme, highlight?: boolean): ViewStyle {
   };
 }
 
-type BadgeKind = "tip" | "premium" | "neutral" | "now";
+type BadgeKind = "tip" | "premium" | "neutral" | "now" | "danger";
 
 export function Badge({ kind, children }: { kind: BadgeKind; children: ReactNode }) {
   const theme = useTheme();
   const colors: Record<BadgeKind, { bg: string; fg: string }> = theme.dark
     ? { tip: { bg: "rgba(227,169,43,0.2)", fg: "#f9edcc" }, premium: { bg: "#f2d894", fg: "#1a1815" },
-        neutral: { bg: "#34302b", fg: "#cbc6bd" }, now: { bg: "rgba(123,197,138,0.18)", fg: "#b9e3c1" } }
+        neutral: { bg: "#34302b", fg: "#cbc6bd" }, now: { bg: "rgba(123,197,138,0.18)", fg: "#b9e3c1" }, danger: { bg: "rgba(249,112,102,0.16)", fg: "#fda29b" } }
     : { tip: { bg: "#f2d894", fg: "#321f08" }, premium: { bg: "#2a2520", fg: "#f2d894" },
-        neutral: { bg: "#eeece7", fg: "#4a4640" }, now: { bg: "#e3f1e5", fg: "#2f6b3a" } };
+        neutral: { bg: "#eeece7", fg: "#4a4640" }, now: { bg: "#e3f1e5", fg: "#2f6b3a" }, danger: { bg: "#fdecea", fg: "#b42318" } };
   const c = colors[kind];
   return (
     <View style={{ backgroundColor: c.bg, borderRadius: radius.pill, paddingHorizontal: 8, paddingVertical: 2 }}>
@@ -158,4 +158,10 @@ export function Button({ title, onPress, kind = "primary", disabled, loading }: 
       )}
     </Pressable>
   );
+}
+
+/** Moderation status from the server: pending (gold), approved (green), rejected (red). */
+export function StatusBadge({ status, label }: { status: string; label: string }) {
+  const kind: BadgeKind = status === "approved" ? "now" : status === "rejected" ? "danger" : "tip";
+  return <Badge kind={kind}>{label}</Badge>;
 }

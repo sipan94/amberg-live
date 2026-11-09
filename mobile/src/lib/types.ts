@@ -157,3 +157,29 @@ export type Organization = OrgBrief & {
   events: Occurrence[];
   offers: Offer[];
 };
+
+export type MyEvent = Moderation & {
+  id: number; slug: string; title: string; start: string; end: string | null; when: string;
+  recurrence: string; recurrence_until: string | null; category_id: number; location_name: string; address: string | null;
+  is_free: boolean; price_info: string | null; description_text: string; image: ImageRef; is_featured: boolean; view_count: number;
+};
+
+export type MyOffer = Moderation & {
+  id: number; slug: string; title: string; valid_from: string; valid_until: string | null;
+  description_text: string; image: ImageRef; view_count: number;
+};
+
+export type MyOrganization = Organization & Moderation & { opening_hours_raw: Record<string, string> };
+
+export type Overview = { user: User; organization: Omit<MyOrganization, "events" | "offers"> | null; events: MyEvent[]; offers: MyOffer[] };
+
+export type FormOptions = {
+  categories: { id: number; name: string }[];
+  recurrence: { value: string; label: string }[];
+  org_types: { value: "business" | "club"; label: string }[];
+  weekdays: { key: string; label: string }[];
+  rights_label: string;
+  review_note: string;
+};
+
+export type SaveResult<T> = { message: string; pending: boolean; item: T };

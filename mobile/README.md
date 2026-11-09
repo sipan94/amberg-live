@@ -37,8 +37,12 @@ src/app/              Bildschirme (Expo Router: jede Datei = ein Bildschirm)
   offers/[slug].tsx   Angebot
   places/[slug].tsx   Geschäft / Verein
   favorites.tsx       Merkliste mit Erinnerungen
+  login / register / forgot-password   Konto
+  settings/           Passwort ändern, Konto löschen
+  dashboard/          Mein Bereich: Profil, Veranstaltungen, Angebote (mit Bild-Upload)
 src/components/       Karten, Buttons, Filter, Karte (Leaflet in WebView)
 src/lib/favorites.tsx Merkliste + Erinnerungen (nur auf dem Handy)
+src/lib/forms.ts      Formulare wie im Browser senden (multipart, Bilder)
 src/lib/api.ts        Verbindung zur API (Token, Fehler auf Deutsch)
 src/lib/auth.tsx      Login-Status, Token im sicheren Speicher des Handys
 src/i18n/de.ts        alle Texte der App
