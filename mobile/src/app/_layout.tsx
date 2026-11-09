@@ -6,13 +6,16 @@ import {
   useFonts,
 } from "@expo-google-fonts/schibsted-grotesk";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Stack } from "expo-router";
+import * as Notifications from "expo-notifications";
+import { router, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import * as SystemUI from "expo-system-ui";
 import { useEffect } from "react";
+import { Platform } from "react-native";
 
 import { AuthProvider, useAuth } from "@/lib/auth";
+import { FavoritesProvider } from "@/lib/favorites";
 import { font, useTheme } from "@/theme";
 
 SplashScreen.preventAutoHideAsync();
@@ -34,7 +37,9 @@ export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <Navigator fontsLoaded={fontsLoaded} />
+        <FavoritesProvider>
+          <Navigator fontsLoaded={fontsLoaded} />
+        </FavoritesProvider>
       </AuthProvider>
     </QueryClientProvider>
   );
@@ -51,6 +56,16 @@ function Navigator({ fontsLoaded }: { fontsLoaded: boolean }) {
   useEffect(() => {
     if (fontsLoaded && ready) SplashScreen.hideAsync();
   }, [fontsLoaded, ready]);
+
+  // Tapping a reminder opens its event.
+  useEffect(() => {
+    if (Platform.OS === "web") return;
+    const sub = Notifications.addNotificationResponseReceivedListener((response) => {
+      const url = response.notification.request.content.data?.url;
+      if (typeof url === "string") router.push(url as never);
+    });
+    return () => sub.remove();
+  }, []);
 
   if (!fontsLoaded || !ready) return null;
 
@@ -70,6 +85,8 @@ function Navigator({ fontsLoaded }: { fontsLoaded: boolean }) {
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="events/[slug]" options={{ title: "" }} />
         <Stack.Screen name="offers/[slug]" options={{ title: "" }} />
+        <Stack.Screen name="places/[slug]" options={{ title: "" }} />
+        <Stack.Screen name="favorites" />
       </Stack>
     </>
   );

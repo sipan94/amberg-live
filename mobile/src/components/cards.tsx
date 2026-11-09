@@ -74,10 +74,13 @@ function Badges({ item }: { item: Occurrence }) {
   return <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6, marginBottom: 2 }}>{badges}</View>;
 }
 
+/** Offers without a photo: a gold tag, like the offer badge colour on the website. */
+const OFFER_COVER: Category = { id: 0, name: "", slug: "", icon: "tag", color: "#a87215" };
+
 export function OfferCard({ item, onPress, width }: { item: Offer; onPress: () => void; width?: number }) {
   return (
     <Card highlight={item.is_featured} onPress={onPress} style={width ? { width } : undefined}>
-      <Cover image={item.image ?? item.organization.logo} height={width ? Math.round(width * 0.5) : 140} />
+      <Cover image={item.image ?? item.organization.logo} category={OFFER_COVER} height={width ? Math.round(width * 0.5) : 140} />
       <View style={{ padding: space.md, gap: 4 }}>
         <AppText variant="label" muted numberOfLines={1}>{item.organization.name}</AppText>
         <AppText variant="heading" numberOfLines={2} style={{ fontSize: 17, lineHeight: 22 }}>{item.title}</AppText>

@@ -33,9 +33,12 @@ Für einen anderen Server: `EXPO_PUBLIC_API_URL=https://… npm start`.
 ```
 src/app/              Bildschirme (Expo Router: jede Datei = ein Bildschirm)
   (tabs)/             Start, Termine, Angebote, Orte, Konto
-  events/[slug].tsx   Veranstaltung
+  events/[slug].tsx   Veranstaltung (Merken, Kalender, Teilen, Route, Karte)
   offers/[slug].tsx   Angebot
-src/components/       Karten, Buttons, Texte
+  places/[slug].tsx   Geschäft / Verein
+  favorites.tsx       Merkliste mit Erinnerungen
+src/components/       Karten, Buttons, Filter, Karte (Leaflet in WebView)
+src/lib/favorites.tsx Merkliste + Erinnerungen (nur auf dem Handy)
 src/lib/api.ts        Verbindung zur API (Token, Fehler auf Deutsch)
 src/lib/auth.tsx      Login-Status, Token im sicheren Speicher des Handys
 src/i18n/de.ts        alle Texte der App
@@ -51,6 +54,8 @@ npx expo-doctor
 
 ## Hinweise
 
+- Karte wie auf der Website: OpenStreetMap lädt erst nach Zustimmung, Leaflet kommt vom eigenen Server.
+- Merkliste und Erinnerungen bleiben auf dem Handy (lokale Mitteilungen, kein Push-Server).
 - Die Schrift (Schibsted Grotesk) ist in die App eingebaut – es wird nichts aus dem Internet nachgeladen.
 - Der Login-Token liegt im Schlüsselbund (iOS) bzw. Keystore (Android), nie im normalen App-Speicher.
 - Unter Windows mit Smart App Control kann `npx expo export` am Hermes-Compiler scheitern;

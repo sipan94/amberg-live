@@ -80,3 +80,80 @@ export type User = {
   organization: (OrgBrief & Moderation) | null;
   pending?: number;
 };
+
+export type PageMeta = { page: number; pages: number; total: number; has_next: boolean; has_prev: boolean };
+
+export type EventsPage = PageMeta & {
+  tips: Occurrence[];
+  days: { date: string; label: string; items: Occurrence[] }[];
+  filter: { period: string; category: string | null; price: string | null; q: string; von: string | null; bis: string | null };
+};
+
+export type CalendarData = {
+  month: string;
+  title: string;
+  prev: string;
+  next: string;
+  weekdays: string[];
+  first_weekday: number; // 0 = Monday
+  days_in_month: number;
+  today: string;
+  days: Record<string, Occurrence[]>;
+};
+
+export type MapData = {
+  markers: Occurrence[];
+  missing: number;
+  tiles: { url: string; attribution: string };
+  center: { lat: number; lng: number };
+};
+
+export type EventDetail = {
+  id: number;
+  slug: string;
+  title: string;
+  description_html: string;
+  description_text: string;
+  start: string;
+  end: string | null;
+  when: string;
+  recurrence: string;
+  recurrence_label: string | null;
+  recurrence_until: string | null;
+  next_dates: { start: string; end: string | null; when: string }[];
+  is_past: boolean;
+  location_name: string;
+  address: string | null;
+  lat: number | null;
+  lng: number | null;
+  is_free: boolean;
+  price: string;
+  category: Category | null;
+  is_featured: boolean;
+  image: ImageRef;
+  organization: OrgBrief;
+  web_url: string;
+  ics_url: string;
+  share_text: string;
+  more_from_organizer: Occurrence[];
+};
+
+export type Paged<T> = PageMeta & { items: T[] };
+
+export type OrgListItem = OrgBrief & { summary: string; type_label: string };
+
+export type Organization = OrgBrief & {
+  description_html: string;
+  description_text: string;
+  address: string | null;
+  lat: number | null;
+  lng: number | null;
+  phone: string | null;
+  email: string | null;
+  website: string | null;
+  opening_hours: { day: string; label: string; value: string }[];
+  cover_image: ImageRef;
+  web_url: string;
+  events: Occurrence[];
+  offers: Offer[];
+};
