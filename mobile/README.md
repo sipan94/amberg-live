@@ -50,6 +50,11 @@ src/i18n/de.ts        alle Texte der App
 src/theme.ts          Farben, Schrift, Abstände
 ```
 
+## Icons und Store
+
+- Icons und Startbild: `python scripts/make_app_icons.py` (im Hauptordner) erzeugt alle Bilder in `assets/`.
+- Cloud-Builds und Veröffentlichung: [../docs/APP-STORES.md](../docs/APP-STORES.md).
+
 ## Prüfen
 
 ```bash
