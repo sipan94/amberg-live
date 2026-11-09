@@ -20,11 +20,13 @@ const today = () => {
 };
 
 export default function OfferFormScreen() {
-  const { id } = useLocalSearchParams<{ id?: string }>();
+  const { id, admin } = useLocalSearchParams<{ id?: string; admin?: string }>();
   const editing = !!id;
+  const asAdmin = admin === "1";
+  const itemPath = asAdmin ? `/admin/offer/${id}` : `/me/offers/${id}`;
   const queryClient = useQueryClient();
   const options = useQuery({ queryKey: ["form-options"], queryFn: () => api<FormOptions>("/me/form-options"), staleTime: 60 * 60_000 });
-  const existing = useQuery({ queryKey: ["my-offer", id], queryFn: () => api<MyOffer>(`/me/offers/${id}`), enabled: editing });
+  const existing = useQuery({ queryKey: ["my-offer", id], queryFn: () => api<MyOffer>(itemPath), enabled: editing });
 
   const [v, setV] = useState({ title: "", description: "", valid_from: today(), valid_until: "" });
   const [rights, setRights] = useState(false);
@@ -52,7 +54,7 @@ export default function OfferFormScreen() {
     setBusy(true);
     setError(null);
     setFields({});
-    const res = await submitForm<SaveResult<MyOffer>>(editing ? `/me/offers/${id}` : "/me/offers", editing ? "PUT" : "POST", {
+    const res = await submitForm<SaveResult<MyOffer>>(editing ? itemPath : "/me/offers", editing ? "PUT" : "POST", {
       ...v, remove_image: removeImage, rights_confirmed: rights,
     }, { image });
     setBusy(false);
@@ -61,18 +63,18 @@ export default function OfferFormScreen() {
       setFields(res.fields);
       return;
     }
-    await queryClient.invalidateQueries({ queryKey: ["overview"] });
+    await queryClient.invalidateQueries({ queryKey: asAdmin ? ["admin"] : ["overview"] });
     queryClient.removeQueries({ queryKey: ["my-offer", id] });
     Alert.alert(t.dashboard.offers, res.data.message);
-    goBack("/dashboard");
+    goBack(asAdmin ? "/admin" : "/dashboard");
   };
 
   const remove = () => {
     const go = async () => {
       try {
-        await api(`/me/offers/${id}`, { method: "DELETE" });
-        await queryClient.invalidateQueries({ queryKey: ["overview"] });
-        goBack("/dashboard");
+        await api(itemPath, { method: "DELETE" });
+        await queryClient.invalidateQueries({ queryKey: asAdmin ? ["admin"] : ["overview"] });
+        goBack(asAdmin ? "/admin" : "/dashboard");
       } catch (e) {
         setError(e instanceof ApiError ? e.message : t.errors.generic);
       }
@@ -100,9 +102,9 @@ export default function OfferFormScreen() {
       </View>
       <ImageField label={t.fields.image} currentUrl={existing.data?.image?.small} picked={image} onPick={setImage}
         removed={removeImage} onRemove={setRemoveImage} error={fields.image} aspect={[16, 9]} />
-      <SwitchRow label={opts.rights_label} value={rights} onChange={setRights} error={fields.rights_confirmed} />
-      <AppText variant="small" muted>{opts.review_note}</AppText>
-      <Button title={t.forms.submit} onPress={submit} loading={busy} />
+      {!asAdmin ? <SwitchRow label={opts.rights_label} value={rights} onChange={setRights} error={fields.rights_confirmed} /> : null}
+      {!asAdmin ? <AppText variant="small" muted>{opts.review_note}</AppText> : null}
+      <Button title={asAdmin ? t.forms.save : t.forms.submit} onPress={submit} loading={busy} />
       {editing ? <View style={{ alignItems: "flex-start" }}><SmallButton icon="trash-2" label={t.forms.delete} onPress={remove} danger /></View> : null}
     </FormScreen>
   );

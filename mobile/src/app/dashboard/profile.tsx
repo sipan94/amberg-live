@@ -1,6 +1,6 @@
 /** Create / edit the business or club profile (POST/PUT /me/organization). */
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Stack } from "expo-router";
+import { Stack, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { Alert, View } from "react-native";
 
@@ -19,8 +19,16 @@ export default function ProfileScreen() {
   const queryClient = useQueryClient();
   const { refresh } = useAuth();
   const options = useQuery({ queryKey: ["form-options"], queryFn: () => api<FormOptions>("/me/form-options"), staleTime: 60 * 60_000 });
-  const overview = useQuery({ queryKey: ["overview"], queryFn: () => api<Overview>("/me/overview") });
-  const org = overview.data?.organization ?? null;
+  const { id, admin } = useLocalSearchParams<{ id?: string; admin?: string }>();
+  const asAdmin = admin === "1" && !!id; // admin edits any profile; status stays as it is
+  // The own profile comes with the overview; an admin loads the chosen one.
+  const overview = useQuery({
+    queryKey: asAdmin ? ["admin", "item", "organization", id] : ["overview"],
+    queryFn: async () => (asAdmin
+      ? { organization: await api<MyOrganization>(`/admin/organization/${id}`) }
+      : await api<Overview>("/me/overview")),
+  });
+  const org = (overview.data?.organization ?? null) as MyOrganization | null;
 
   const [v, setV] = useState({ name: "", org_type: "business", description: "", address: "", phone: "", email: "", website: "" });
   const [hours, setHours] = useState<Record<string, string>>({});
@@ -54,7 +62,7 @@ export default function ProfileScreen() {
     setBusy(true);
     setError(null);
     setFields({});
-    const res = await submitForm<SaveResult<MyOrganization>>("/me/organization", org ? "PUT" : "POST", {
+    const res = await submitForm<SaveResult<MyOrganization>>(asAdmin ? `/admin/organization/${id}` : "/me/organization", org ? "PUT" : "POST", {
       ...v,
       ...Object.fromEntries(options.data.weekdays.map((d) => [`hours_${d.key}`, hours[d.key] ?? ""])),
       remove_logo: removeLogo, remove_cover: removeCover, rights_confirmed: rights,
@@ -65,10 +73,10 @@ export default function ProfileScreen() {
       setFields(res.fields);
       return;
     }
-    await queryClient.invalidateQueries({ queryKey: ["overview"] });
-    void refresh();
+    await queryClient.invalidateQueries({ queryKey: asAdmin ? ["admin"] : ["overview"] });
+    if (!asAdmin) void refresh();
     Alert.alert(t.dashboard.profile, res.data.message);
-    goBack("/dashboard");
+    goBack(asAdmin ? "/admin" : "/dashboard");
   };
 
   return (
@@ -93,9 +101,9 @@ export default function ProfileScreen() {
         ))}
       </View>
 
-      <SwitchRow label={options.data.rights_label} value={rights} onChange={setRights} error={fields.rights_confirmed} />
-      <AppText variant="small" muted>{options.data.review_note}</AppText>
-      <Button title={t.forms.submit} onPress={submit} loading={busy} />
+      {!asAdmin ? <SwitchRow label={options.data.rights_label} value={rights} onChange={setRights} error={fields.rights_confirmed} /> : null}
+      {!asAdmin ? <AppText variant="small" muted>{options.data.review_note}</AppText> : null}
+      <Button title={asAdmin ? t.forms.save : t.forms.submit} onPress={submit} loading={busy} />
     </FormScreen>
   );
 }

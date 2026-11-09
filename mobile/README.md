@@ -40,6 +40,7 @@ src/app/              Bildschirme (Expo Router: jede Datei = ein Bildschirm)
   login / register / forgot-password   Konto
   settings/           Passwort ändern, Konto löschen
   dashboard/          Mein Bereich: Profil, Veranstaltungen, Angebote (mit Bild-Upload)
+  admin/              Verwaltung: Prüfen, Inhalte, Nutzer, Kategorien, Protokoll, Zahlen
 src/components/       Karten, Buttons, Filter, Karte (Leaflet in WebView)
 src/lib/favorites.tsx Merkliste + Erinnerungen (nur auf dem Handy)
 src/lib/forms.ts      Formulare wie im Browser senden (multipart, Bilder)

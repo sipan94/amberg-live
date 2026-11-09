@@ -183,3 +183,53 @@ export type FormOptions = {
 };
 
 export type SaveResult<T> = { message: string; pending: boolean; item: T };
+
+export type AdminKind = "event" | "offer" | "organization";
+
+/** An item as the admin sees it (app/api/admin.py `_admin_item`): content + owner + moderation. */
+export type AdminItem = Moderation & {
+  kind: AdminKind;
+  id: number;
+  slug: string;
+  title?: string; // events and offers
+  name?: string; // organisations
+  when?: string;
+  start?: string;
+  end?: string | null;
+  valid_from?: string;
+  valid_until?: string | null;
+  description_text: string;
+  image?: ImageRef;
+  logo?: ImageRef;
+  cover_image?: ImageRef;
+  is_featured?: boolean;
+  view_count?: number;
+  location_name?: string;
+  address?: string | null;
+  organization: OrgBrief & { status: string };
+  owner_email: string;
+  submitted_at: string | null;
+  is_premium: boolean;
+  premium_until: string | null;
+  web_url: string;
+};
+
+export type AdminOverview = {
+  stats: { users: number; users_new: number; orgs: number; premium: number; events_upcoming: number; offers: number };
+  pending: Record<AdminKind, number>;
+  views_total: number;
+  days: { date: string; views: number }[];
+  top_events: { slug: string; title: string; views: number }[];
+  recent: { at: string; action: string; label: string }[];
+};
+
+export type AdminQueue = { kind: AdminKind; counts: Record<AdminKind, number>; items: AdminItem[]; reject_presets: string[] };
+
+export type AdminUser = {
+  id: number; email: string; role: string; is_admin: boolean; is_verified: boolean; is_blocked: boolean;
+  created_at: string; last_login_at: string | null; organizations: (OrgBrief & { status: string })[]; is_me: boolean;
+};
+
+export type AdminCategory = Category & { sort_order: number; events: number };
+
+export type LogEntry = { at: string; admin: string; action: string; type: string; label: string; reason: string | null };

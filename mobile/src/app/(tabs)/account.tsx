@@ -1,8 +1,8 @@
 /** Konto: Merkliste, login / business area, account settings, legal pages. */
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Constants from "expo-constants";
-import { router } from "expo-router";
-import { useState } from "react";
+import { router, useFocusEffect } from "expo-router";
+import { useCallback, useState } from "react";
 import { Alert, Platform, Pressable, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -24,6 +24,11 @@ export default function AccountScreen() {
   const meta = useQuery({ queryKey: ["meta"], queryFn: () => api<Meta>("/meta"), staleTime: 60 * 60_000 });
   const legal = meta.data?.legal;
   const [notice, setNotice] = useState<string | null>(null);
+
+  // Fresh numbers (open reviews, verification) each time the tab is shown.
+  useFocusEffect(useCallback(() => {
+    if (user) void refresh().catch(() => undefined);
+  }, [user?.id])); // eslint-disable-line react-hooks/exhaustive-deps
 
   const confirmLogout = () => {
     const go = async () => {
@@ -73,6 +78,9 @@ export default function AccountScreen() {
             ) : null}
           </Card>
           <Card>
+            {user.is_admin ? (
+              <MenuRow icon="shield" label={t.admin.title} value={user.pending ? String(user.pending) : undefined} onPress={() => router.push("/admin")} />
+            ) : null}
             <MenuRow icon="grid" label={t.dashboard.title} onPress={() => router.push("/dashboard")} />
             <MenuRow icon="lock" label={t.settings.changePassword} onPress={() => router.push("/settings/password")} />
             <MenuRow icon="log-out" label={t.auth.logout} onPress={confirmLogout} />

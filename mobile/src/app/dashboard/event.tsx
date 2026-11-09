@@ -17,12 +17,14 @@ import { space } from "@/theme";
 const split = (iso: string | null) => (iso ? { date: iso.slice(0, 10), time: iso.slice(11, 16) } : { date: "", time: "" });
 
 export default function EventFormScreen() {
-  const { id } = useLocalSearchParams<{ id?: string }>();
+  const { id, admin } = useLocalSearchParams<{ id?: string; admin?: string }>();
   const editing = !!id;
+  const asAdmin = admin === "1"; // admin edits any entry; status stays as it is
+  const itemPath = asAdmin ? `/admin/event/${id}` : `/me/events/${id}`;
   const queryClient = useQueryClient();
   const options = useQuery({ queryKey: ["form-options"], queryFn: () => api<FormOptions>("/me/form-options"), staleTime: 60 * 60_000 });
-  const overview = useQuery({ queryKey: ["overview"], queryFn: () => api<Overview>("/me/overview"), enabled: !editing });
-  const existing = useQuery({ queryKey: ["my-event", id], queryFn: () => api<MyEvent>(`/me/events/${id}`), enabled: editing });
+  const overview = useQuery({ queryKey: ["overview"], queryFn: () => api<Overview>("/me/overview"), enabled: !editing && !asAdmin });
+  const existing = useQuery({ queryKey: ["my-event", id], queryFn: () => api<MyEvent>(itemPath), enabled: editing });
 
   const [v, setV] = useState({
     title: "", description: "", start_date: "", start_time: "", end_date: "", end_time: "",
@@ -67,7 +69,7 @@ export default function EventFormScreen() {
     setBusy(true);
     setError(null);
     setFields({});
-    const res = await submitForm<SaveResult<MyEvent>>(editing ? `/me/events/${id}` : "/me/events", editing ? "PUT" : "POST", {
+    const res = await submitForm<SaveResult<MyEvent>>(editing ? itemPath : "/me/events", editing ? "PUT" : "POST", {
       ...v, category_id: categoryId, is_free: isFree, remove_image: removeImage, rights_confirmed: rights,
     }, { image });
     setBusy(false);
@@ -76,18 +78,18 @@ export default function EventFormScreen() {
       setFields(res.fields);
       return;
     }
-    await queryClient.invalidateQueries({ queryKey: ["overview"] });
+    await queryClient.invalidateQueries({ queryKey: asAdmin ? ["admin"] : ["overview"] });
     queryClient.removeQueries({ queryKey: ["my-event", id] });
     Alert.alert(t.dashboard.events, res.data.message);
-    goBack("/dashboard");
+    goBack(asAdmin ? "/admin" : "/dashboard");
   };
 
   const remove = () => {
     const go = async () => {
       try {
-        await api(`/me/events/${id}`, { method: "DELETE" });
-        await queryClient.invalidateQueries({ queryKey: ["overview"] });
-        goBack("/dashboard");
+        await api(itemPath, { method: "DELETE" });
+        await queryClient.invalidateQueries({ queryKey: asAdmin ? ["admin"] : ["overview"] });
+        goBack(asAdmin ? "/admin" : "/dashboard");
       } catch (e) {
         setError(e instanceof ApiError ? e.message : t.errors.generic);
       }
@@ -130,9 +132,9 @@ export default function EventFormScreen() {
       <ImageField label={t.fields.image} currentUrl={existing.data?.image?.small} picked={image} onPick={setImage}
         removed={removeImage} onRemove={setRemoveImage} error={fields.image} aspect={[16, 9]} />
 
-      <SwitchRow label={opts.rights_label} value={rights} onChange={setRights} error={fields.rights_confirmed} />
-      <AppText variant="small" muted>{opts.review_note}</AppText>
-      <Button title={t.forms.submit} onPress={submit} loading={busy} />
+      {!asAdmin ? <SwitchRow label={opts.rights_label} value={rights} onChange={setRights} error={fields.rights_confirmed} /> : null}
+      {!asAdmin ? <AppText variant="small" muted>{opts.review_note}</AppText> : null}
+      <Button title={asAdmin ? t.forms.save : t.forms.submit} onPress={submit} loading={busy} />
       {editing ? <View style={{ alignItems: "flex-start" }}><SmallButton icon="trash-2" label={t.forms.delete} onPress={remove} danger /></View> : null}
     </FormScreen>
   );
